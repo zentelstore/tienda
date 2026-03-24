@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>ZentelStore — Catálogo de Juegos</title>
+  <meta name="description" content="Steam, PS4, PS5, Streaming y más. Activación inmediata. Consultá por WhatsApp."/>
+  <meta name="robots" content="index,follow"/>
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="ZentelStore"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="theme-color" content="#00e5ff"/>
+  <!-- OG -->
+  <meta property="og:title" content="ZentelStore — Catálogo de Juegos"/>
+  <meta property="og:description" content="Steam, PS4, PS5, Streaming. Activación inmediata."/>
+  <meta property="og:image" content="https://zentelstore.github.io/catalogo/og-image.jpg"/>
+  <meta property="og:url" content="https://zentelstore.github.io/catalogo"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+<!-- Google Analytics: cuando tengas tu ID, agregá el script acá -->
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --bg:#0a0a0f;--surface:#12121a;--card:#1a1a26;--border:#2a2a3d;
+      --accent:#00e5ff;--accent2:#7c3aed;--green:#22c55e;--red:#ef4444;
+      --yellow:#f59e0b;--blue:#3b82f6;--text:#e2e8f0;--muted:#64748b;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overscroll-behavior-y:contain}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+    /* ── BANNER ANUNCIO ── */
+    #banner-anuncio{background:linear-gradient(90deg,var(--accent2),#4f46e5);color:#fff;text-align:center;padding:.48rem 2.5rem;font-size:.8rem;font-weight:600;position:relative;z-index:102;display:none;animation:slideDown .4s ease}
+    #banner-anuncio.show{display:block}
+    .banner-close{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:1.1rem;line-height:1;padding:.2rem}
+    .banner-close:hover{color:#fff}
+    @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
+    /* ── HORARIO BANNER ── */
+    #horario-banner{background:linear-gradient(90deg,rgba(34,197,94,.12),rgba(0,229,255,.08));border-bottom:1px solid rgba(34,197,94,.2);padding:.38rem 1.25rem;display:flex;align-items:center;justify-content:center;gap:.55rem;font-size:.74rem;color:var(--green);position:relative;z-index:101}
+    #horario-banner.cerrado{background:linear-gradient(90deg,rgba(239,68,68,.1),rgba(239,68,68,.05));border-color:rgba(239,68,68,.2);color:var(--red)}
+    .dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0;animation:pulse 1.8s ease-in-out infinite}
+    .cerrado .dot-live{background:var(--red);box-shadow:0 0 6px var(--red)}
+
+    /* ── HEADER ── */
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .header-inner{max-width:1300px;margin:0 auto;padding:0 1rem;height:56px;display:flex;align-items:center;gap:.75rem}
+    .logo{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.4rem;flex-shrink:0;cursor:pointer;border:none;background:none;padding:0}
+    .logo span{color:var(--accent)}
+    .logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem}
+    .header-right{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:.5rem}
+    .search-wrap{position:relative;flex:1;max-width:320px}
+    .search-wrap svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    #buscador{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.875rem;padding:.46rem .9rem .46rem 2rem;outline:none;transition:border-color .2s}
+    #buscador:focus{border-color:var(--accent)}
+    #buscador::placeholder{color:var(--muted)}
+
+    /* USD toggle */
+    .usd-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:'Inter',sans-serif;font-size:.72rem;font-weight:600;padding:.38rem .62rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.28rem;white-space:nowrap;flex-shrink:0}
+    .usd-btn:hover,.usd-btn.on{border-color:var(--green);color:var(--green)}
+    .usd-btn.on{background:rgba(34,197,94,.08)}
+
+    /* Carrito */
+    .carrito-btn{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.38rem .6rem;cursor:pointer;display:flex;align-items:center;color:var(--muted);font-size:.9rem;transition:all .2s;flex-shrink:0}
+    .carrito-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .carrito-badge{position:absolute;top:-6px;right:-6px;background:var(--accent);color:#000;font-size:.58rem;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center}
+    .carrito-badge.show{display:flex}
+
+    /* ── PWA INSTALL BANNER ── */
+    #pwa-banner{background:var(--card);border-bottom:1px solid var(--border);padding:.7rem 1rem;display:none;align-items:center;gap:.75rem;position:relative;z-index:98}
+    #pwa-banner.show{display:flex}
+    .pwa-icon{font-size:1.5rem;flex-shrink:0}
+    .pwa-text{flex:1;min-width:0}
+    .pwa-text strong{display:block;font-size:.85rem;color:var(--text)}
+    .pwa-text span{font-size:.74rem;color:var(--muted)}
+    .pwa-btns{display:flex;gap:.4rem;flex-shrink:0}
+    .pwa-install{background:var(--accent);color:#000;border:none;border-radius:7px;padding:.38rem .78rem;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer}
+    .pwa-dismiss{background:transparent;border:1px solid var(--border);border-radius:7px;padding:.38rem .65rem;font-family:'Inter',sans-serif;font-size:.78rem;color:var(--muted);cursor:pointer}
+
+    /* ── TABS DESKTOP ── */
+    .tabs-bar{background:rgba(10,10,15,.82);border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:99;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none}
+    .tabs-bar::-webkit-scrollbar{display:none}
+    .tabs-inner{max-width:1300px;margin:0 auto;padding:0 1rem;display:flex;gap:.1rem;white-space:nowrap}
+    .tab{padding:.58rem .9rem;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;display:flex;align-items:center;gap:.3rem;white-space:nowrap;min-height:44px}
+    .tab:hover{color:var(--text)}.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+    /* ── TABS MOBILE ── */
+    .tabs-mobile{display:none;background:rgba(10,10,15,.94);border-bottom:1px solid var(--border);position:sticky;top:56px;z-index:99;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:.5rem .9rem}
+    .tab-select{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;font-weight:500;padding:.52rem .9rem;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .9rem center;min-height:44px}
+    .tab-select option{background:#1a1a26}
+
+    /* ── TOOLBAR ── */
+    .toolbar{max-width:1300px;margin:0 auto;padding:.75rem 1rem .15rem;display:flex;gap:.38rem;flex-wrap:wrap;align-items:center}
+    .btn-filtro{padding:.35rem .78rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:.74rem;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;min-height:36px}
+    .btn-filtro:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-filtro.active{background:var(--accent);border-color:var(--accent);color:#000}
+    .toolbar-right{display:flex;gap:.35rem;align-items:center;margin-left:auto;flex-wrap:wrap}
+    .stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:.24rem .68rem;font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.28rem}
+    .stat-dot{width:6px;height:6px;border-radius:50%}
+    .dot-green{background:var(--green);box-shadow:0 0 5px var(--green)}
+    .dot-blue{background:var(--accent);box-shadow:0 0 5px var(--accent)}
+    .sort-select{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-family:'Inter',sans-serif;font-size:.72rem;padding:.28rem .55rem;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .42rem center;padding-right:1.3rem;min-height:34px}
+    .sort-select option{background:#1a1a26}
+    .view-toggle{display:flex;gap:.2rem}
+    .btn-view{background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:.28rem .5rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;min-height:34px}
+    .btn-view.active,.btn-view:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-sub{padding:.34rem .78rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:.76rem;font-weight:500;cursor:pointer;transition:all .2s;min-height:36px}
+    .btn-sub:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-sub.active{background:var(--accent);border-color:var(--accent);color:#000}
+
+    /* ── MAIN ── */
+    main{position:relative;z-index:1;max-width:1300px;margin:0 auto;padding:1rem 1rem 5rem}
+    .panel{display:none}.panel.active{display:block}
+
+    /* ── GRID / LISTA ── */
+    .grid-juegos{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.9rem}
+    .grid-juegos.view-lista{display:flex;flex-direction:column;gap:.32rem}
+
+    /* ── CARD ── */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s;animation:fadeUp .3s ease both;cursor:pointer;position:relative;-webkit-user-select:none;user-select:none}
+    .card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 0 20px rgba(0,229,255,.11)}
+    .card:active{transform:scale(.97)}
+    .card-img{width:100%;aspect-ratio:460/215;object-fit:cover;background:var(--surface);display:block}
+    .card-body{padding:.65rem .82rem .82rem}
+    .card-nombre{font-family:'Rajdhani',sans-serif;font-size:.96rem;font-weight:700;margin-bottom:.46rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .precios-row{display:flex;justify-content:space-between;align-items:flex-end;gap:.4rem}
+    .precio-bloque{display:flex;flex-direction:column;gap:.1rem}
+    .precio-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .precio-valor{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)}
+    .precio-valor.sec{color:#a78bfa}
+    .precio-consultar{font-size:.7rem;color:var(--yellow);font-weight:600}
+    .badge{font-size:.6rem;font-weight:600;padding:.14rem .46rem;border-radius:4px;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+    .badge-ok{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .badge-no{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+    .card-footer{display:flex;align-items:center;justify-content:space-between;gap:.4rem}
+    .precio-steam{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent)}
+    .card-actions{position:absolute;top:.4rem;right:.4rem;display:flex;gap:.28rem;opacity:0;transition:opacity .2s}
+    .card:hover .card-actions{opacity:1}
+    .view-lista .card-actions{opacity:1;position:static;background:none}
+    .btn-fav,.btn-cart-card{width:30px;height:30px;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;transition:all .18s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+    .btn-fav{background:rgba(18,18,26,.8);color:var(--muted)}
+    .btn-fav:hover,.btn-fav.active{color:#ef4444}.btn-fav.active{background:rgba(239,68,68,.15)}
+    .btn-cart-card{background:rgba(0,229,255,.12);color:var(--accent)}
+    .btn-cart-card:hover{background:rgba(0,229,255,.25)}
+    .view-lista .card{border-radius:8px}
+    .view-lista .card-img{display:none}
+    .view-lista .card-body{padding:.5rem .88rem;display:flex;align-items:center;gap:.75rem;margin-bottom:0}
+    .view-lista .card-nombre{flex:1;margin-bottom:0;font-size:.9rem}
+    .view-lista .precios-row{flex-shrink:0;gap:.65rem}
+    .view-lista .precio-label{display:none}
+
+    /* ── PAGINACIÓN ── */
+    .paginacion{display:flex;justify-content:center;align-items:center;gap:.4rem;margin-top:1.4rem;flex-wrap:wrap}
+    .btn-pag{background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--muted);font-family:'Inter',sans-serif;font-size:.76rem;padding:.38rem .72rem;cursor:pointer;transition:all .18s;min-height:38px}
+    .btn-pag:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-pag.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700}
+    .btn-pag:disabled{opacity:.28;cursor:default}
+    .pag-info{font-size:.72rem;color:var(--muted);padding:.38rem .42rem}
+
+    /* ── LOADING / EMPTY ── */
+    .empty{text-align:center;padding:4rem 1rem;color:var(--muted);grid-column:1/-1}
+    .spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+    .loading-msg{text-align:center;padding:4rem 1rem;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:.85rem}
+
+    /* ── PROMOS ── */
+    .promos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:1.15rem}
+    .promo-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeUp .4s ease both}
+    .promo-header{padding:.9rem 1.1rem .65rem;border-bottom:1px solid var(--border)}
+    .promo-titulo{font-family:'Rajdhani',sans-serif;font-size:1.12rem;font-weight:700}
+    .promo-titulo.green{color:var(--green)}.promo-titulo.blue{color:var(--blue)}.promo-titulo.purple{color:#a78bfa}
+    .promo-subtitulo{font-size:.74rem;color:var(--muted);margin-top:.18rem}
+    .promo-vigencia{font-size:.66rem;color:var(--yellow);margin-top:.25rem;display:flex;align-items:center;gap:.28rem}
+    .promo-lista{padding:.65rem 1.1rem .9rem;display:flex;flex-direction:column;gap:.28rem;max-height:350px;overflow-y:auto}
+    .promo-lista::-webkit-scrollbar{width:4px}
+    .promo-lista::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    .promo-item{font-size:.8rem;color:var(--text);padding:.26rem .42rem;border-radius:5px;display:flex;align-items:center;gap:.42rem;transition:background .15s;cursor:pointer;min-height:34px}
+    .promo-item::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
+    .promo-item:hover{background:rgba(0,229,255,.07)}
+
+    /* ── PS PLUS ── */
+    .psplus-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:1.05rem}
+    .service-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeUp .4s ease both}
+    .service-header{padding:.82rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.52rem}
+    .service-emoji{font-size:1.28rem}
+    .service-nombre{font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700}
+    .service-items{padding:.62rem 1rem .9rem;display:flex;flex-direction:column;gap:.38rem}
+    .service-item{display:flex;justify-content:space-between;align-items:center;padding:.38rem .42rem;border-radius:6px;transition:background .15s;cursor:pointer;min-height:40px}
+    .service-item:hover{background:rgba(0,229,255,.06)}
+    .service-item-nombre{font-size:.82rem;color:var(--text)}
+    .service-item-precio{font-family:'Rajdhani',sans-serif;font-size:.96rem;font-weight:700;color:var(--accent)}
+    .service-item-precio.prox{font-size:.7rem;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500}
+    .service-item-precio.consultar{font-size:.7rem;color:var(--yellow);font-family:'Inter',sans-serif;font-weight:500}
+    .section-label{font-family:'Rajdhani',sans-serif;font-size:.92rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.65rem;margin-top:1.15rem;padding-bottom:.35rem;border-bottom:1px solid var(--border)}
+    .section-label:first-child{margin-top:0}
+
+    /* ── STREAMING ── */
+    .streaming-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:.95rem}
+    .stream-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;animation:fadeUp .4s ease both;transition:transform .2s,border-color .2s,box-shadow .2s;cursor:pointer}
+    .stream-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 0 18px rgba(0,229,255,.09)}
+    .stream-card:active{transform:scale(.97)}
+    .stream-header{padding:.82rem 1rem .62rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.52rem}
+    .stream-emoji{font-size:1.75rem;line-height:1}
+    .stream-nombre{font-family:'Rajdhani',sans-serif;font-size:1.18rem;font-weight:700}
+    .stream-items{padding:.62rem 1rem .88rem;display:flex;flex-direction:column;gap:.35rem}
+    .stream-item{display:flex;justify-content:space-between;align-items:center;padding:.28rem .32rem}
+    .stream-tipo{font-size:.79rem;color:var(--muted)}
+    .stream-precio{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--accent)}
+
+    /* ── HOME ── */
+    .home-hero{text-align:center;padding:2rem 1rem 1.6rem;animation:fadeUp .5s ease}
+    .home-hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(1.9rem,6vw,3rem);font-weight:700;line-height:1.1;margin-bottom:.62rem}
+    .home-hero h1 span{color:var(--accent)}
+    .home-hero p{color:var(--muted);font-size:.92rem;max-width:440px;margin:0 auto 1.5rem;line-height:1.6}
+    .home-badge{display:inline-flex;align-items:center;gap:.38rem;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--green);font-size:.76rem;font-weight:600;padding:.28rem .78rem;border-radius:20px;margin-bottom:1.3rem}
+    .home-search{position:relative;max-width:480px;margin:0 auto 1.6rem}
+    .home-search input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;padding:.68rem 1rem .68rem 2.35rem;outline:none;transition:border-color .2s;min-height:46px}
+    .home-search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,229,255,.07)}
+    .home-search svg{position:absolute;left:.78rem;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .home-search-results{position:absolute;top:110%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;max-height:320px;overflow-y:auto;z-index:200;display:none;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+    .home-search-results.show{display:block}
+    .hsr-item{padding:.58rem .88rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.55rem;border-bottom:1px solid var(--border);transition:background .15s;min-height:44px}
+    .hsr-item:last-child{border-bottom:none}
+    .hsr-item:hover{background:rgba(0,229,255,.06)}
+    .hsr-nombre{font-size:.84rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+    .hsr-tag{font-size:.63rem;padding:.1rem .38rem;border-radius:4px;background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.2);flex-shrink:0}
+    .hsr-precio{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;color:var(--accent);flex-shrink:0}
+    .hsr-empty{padding:1.2rem;text-align:center;color:var(--muted);font-size:.84rem}
+    .home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.9rem;margin-bottom:1.6rem}
+    .home-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:1.2rem 1.3rem;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;animation:fadeUp .4s ease both;display:flex;align-items:flex-start;gap:.85rem}
+    .home-card:hover{transform:translateY(-5px);border-color:var(--accent);box-shadow:0 0 25px rgba(0,229,255,.13)}
+    .home-card:active{transform:scale(.97)}
+    .home-card-icon{font-size:1.9rem;flex-shrink:0;width:46px;height:46px;background:var(--surface);border-radius:11px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+    .home-card-info{flex:1;min-width:0}
+    .home-card-titulo{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.18rem}
+    .home-card-desc{font-size:.76rem;color:var(--muted);line-height:1.45}
+    .home-card-badge{display:inline-block;margin-top:.38rem;font-size:.66rem;font-weight:600;padding:.12rem .5rem;border-radius:4px;background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.2)}
+    .home-section-titulo{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.68rem;display:flex;align-items:center;gap:.42rem}
+    .home-section-titulo em{color:var(--accent);font-style:normal}
+    .novedades-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.68rem;margin-bottom:1.6rem}
+    .nov-card{background:var(--card);border:1px solid var(--border);border-radius:9px;overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s;animation:fadeUp .4s ease both}
+    .nov-card:hover{transform:translateY(-3px);border-color:var(--accent)}
+    .nov-card:active{transform:scale(.96)}
+    .nov-img{width:100%;aspect-ratio:460/215;object-fit:cover;background:var(--surface);display:block}
+    .nov-body{padding:.45rem .6rem .58rem}
+    .nov-nombre{font-family:'Rajdhani',sans-serif;font-size:.84rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:.18rem}
+    .nov-precio{font-family:'Rajdhani',sans-serif;font-size:.86rem;font-weight:700;color:var(--accent)}
+    .nov-tag{font-size:.58rem;font-weight:600;padding:.08rem .36rem;border-radius:3px;background:rgba(0,229,255,.1);color:var(--accent);border:1px solid rgba(0,229,255,.2);margin-left:.3rem;vertical-align:middle}
+    .vistos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.68rem;margin-bottom:1.6rem}
+    .favs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:.85rem;margin-bottom:1.6rem}
+    .home-wa{display:flex;align-items:center;justify-content:center;gap:.65rem;padding:1.15rem;background:var(--card);border:1px solid rgba(37,211,102,.25);border-radius:13px;text-decoration:none;transition:border-color .2s,box-shadow .2s;animation:fadeUp .5s ease .3s both;margin-top:.8rem}
+    .home-wa:hover{border-color:rgba(37,211,102,.5);box-shadow:0 0 20px rgba(37,211,102,.1)}
+    .home-wa-text strong{display:block;font-size:.9rem;color:var(--text);margin-bottom:.08rem}
+    .home-wa-text span{font-size:.76rem;color:var(--muted)}
+
+
+
+    /* ── PRODUCTIVIDAD ── */
+    .prod-grid{display:flex;flex-direction:column;gap:1.1rem}
+    .prod-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;animation:fadeUp .4s ease both}
+    .prod-header{padding:1rem 1.2rem .85rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem;background:linear-gradient(90deg,rgba(18,18,26,1),rgba(26,26,42,1))}
+    .prod-header-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;border:1px solid var(--border)}
+    .prod-header-nombre{font-family:'Rajdhani',sans-serif;font-size:1.35rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.04em}
+    .prod-body{padding:.9rem 1.2rem 1.1rem;display:flex;flex-direction:column;gap:.75rem}
+    .prod-plan{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.75rem .9rem}
+    .prod-plan-titulo{font-weight:700;font-size:.92rem;margin-bottom:.3rem;color:var(--text)}
+    .prod-plan-desc{font-size:.78rem;color:var(--muted);margin-bottom:.6rem;line-height:1.5}
+    .prod-garantia{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:.6rem .8rem;margin-bottom:.55rem}
+    .prod-garantia-titulo{font-size:.68rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.35rem}
+    .prod-garantia-item{font-size:.78rem;color:var(--muted);display:flex;align-items:flex-start;gap:.4rem;margin-bottom:.2rem;line-height:1.5}
+    .prod-garantia-item::before{content:'•';color:var(--yellow);flex-shrink:0}
+    .prod-regalo{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:.5rem .8rem;font-size:.8rem;color:var(--green);margin-bottom:.55rem}
+    .prod-select{width:100%;background:var(--surface);border:1px solid var(--yellow);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:.55rem .85rem;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .85rem center;margin-bottom:.5rem}
+    .prod-select option{background:#1a1a26}
+    .btn-add-cart{width:100%;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:.6rem;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:42px}
+    .btn-add-cart.activo{background:var(--accent);color:#000;border-color:var(--accent)}
+    .btn-add-cart.activo:hover{opacity:.88}
+    /* Notas y condiciones */
+    .notas-section{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.3rem;margin-top:1.5rem;animation:fadeUp .4s ease both}
+    .notas-titulo{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.9rem}
+    .nota-item{display:flex;align-items:flex-start;gap:.65rem;padding:.45rem 0;border-bottom:1px solid rgba(42,42,61,.5);font-size:.83rem;color:var(--muted);line-height:1.55}
+    .nota-item:last-child{border-bottom:none}
+    .nota-icon{font-size:1rem;flex-shrink:0;margin-top:.05rem}
+    .nota-item strong{color:var(--text)}
+    .nota-item a{color:#25d366;text-decoration:none;font-weight:600}
+
+    /* ── CÓMO COMPRAR ── */
+    .como-hero{text-align:center;padding:2rem 1rem 1.5rem;animation:fadeUp .4s ease}
+    .como-hero h2{font-family:'Rajdhani',sans-serif;font-size:clamp(1.6rem,5vw,2.4rem);font-weight:700;margin-bottom:.5rem}
+    .como-hero h2 span{color:var(--accent)}
+    .como-hero p{color:var(--muted);font-size:.9rem;max-width:480px;margin:0 auto}
+    .steps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.8rem}
+    .step-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.25rem;animation:fadeUp .4s ease both;position:relative;overflow:hidden}
+    .step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+    .step-num{font-family:'Rajdhani',sans-serif;font-size:2.5rem;font-weight:700;color:var(--border);margin-bottom:.5rem;line-height:1}
+    .step-icon{font-size:1.6rem;margin-bottom:.5rem}
+    .step-titulo{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:.35rem}
+    .step-desc{font-size:.8rem;color:var(--muted);line-height:1.55}
+    .garantia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;margin-bottom:1.8rem}
+    .garantia-card{background:var(--card);border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:.7rem;animation:fadeUp .4s ease both}
+    .garantia-icon{font-size:1.4rem;flex-shrink:0}
+    .garantia-titulo{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.2rem;color:var(--green)}
+    .garantia-desc{font-size:.78rem;color:var(--muted);line-height:1.5}
+    .faq-item{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:.6rem}
+    .faq-q{padding:.85rem 1rem;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.6rem;font-weight:600;font-size:.88rem;min-height:48px}
+    .faq-q:hover{color:var(--accent)}
+    .faq-q svg{flex-shrink:0;transition:transform .25s;color:var(--muted)}
+    .faq-q.open svg{transform:rotate(180deg);color:var(--accent)}
+    .faq-a{padding:0 1rem;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;font-size:.82rem;color:var(--muted);line-height:1.6}
+    .faq-a.open{max-height:200px;padding:.1rem 1rem .85rem}
+
+    /* ── CONTACTO ── */
+    .contacto-wrap{max-width:600px;margin:0 auto}
+    .contacto-hero{text-align:center;padding:1.8rem 1rem 1.5rem;animation:fadeUp .4s ease}
+    .contacto-hero h2{font-family:'Rajdhani',sans-serif;font-size:clamp(1.6rem,5vw,2.2rem);font-weight:700;margin-bottom:.5rem}
+    .contacto-hero h2 span{color:var(--accent)}
+    .contacto-hero p{color:var(--muted);font-size:.88rem;line-height:1.6}
+    .contacto-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem 1.5rem;animation:fadeUp .4s ease .1s both}
+    .form-group{display:flex;flex-direction:column;gap:.28rem;margin-bottom:.8rem}
+    .form-group label{font-size:.76rem;color:var(--muted);font-weight:500}
+    .form-group input,.form-group select,.form-group textarea{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;padding:.52rem .85rem;outline:none;transition:border-color .2s;min-height:44px}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
+    .form-group select option{background:#1a1a26}
+    .form-group textarea{resize:vertical;min-height:90px}
+    .btn-enviar-contacto{width:100%;background:#25d366;color:#fff;border:none;border-radius:10px;padding:.78rem;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .2s;min-height:48px}
+    .btn-enviar-contacto:hover{opacity:.88}
+    .contacto-alt{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:1rem;animation:fadeUp .4s ease .2s both}
+    .contacto-alt-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-decoration:none;text-align:center;transition:border-color .2s,box-shadow .2s;display:flex;flex-direction:column;align-items:center;gap:.35rem}
+    .contacto-alt-btn:hover{border-color:var(--accent);box-shadow:0 0 14px rgba(0,229,255,.08)}
+    .contacto-alt-btn span{font-size:1.5rem}
+    .contacto-alt-btn strong{font-size:.82rem;color:var(--text)}
+    .contacto-alt-btn small{font-size:.72rem;color:var(--muted)}
+
+    /* ── MODAL ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:500;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .2s}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal{background:var(--card);border:1px solid var(--border);border-radius:18px 18px 0 0;width:100%;max-width:500px;overflow:hidden;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0);box-shadow:0 -20px 60px rgba(0,0,0,.5);max-height:92vh;overflow-y:auto}
+    .modal-overlay.open .modal{transform:translateY(0)}
+    /* Handle bar */
+    .modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:.75rem auto .25rem}
+    .modal-img{width:100%;aspect-ratio:460/215;object-fit:cover;background:var(--surface);display:block}
+    .modal-img-placeholder{height:70px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+    .modal-body{padding:1.1rem 1.25rem 1.5rem}
+    .modal-nombre{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.25rem}
+    .modal-desc{font-size:.79rem;color:var(--muted);margin-bottom:.88rem;line-height:1.5}
+    .modal-precios{display:flex;gap:.85rem;margin-bottom:1rem;flex-wrap:wrap}
+    .modal-precio-bloque{display:flex;flex-direction:column;gap:.16rem}
+    .modal-precio-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    .modal-precio-valor{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--accent)}
+    .modal-precio-valor.sec{color:#a78bfa}
+    .modal-precio-valor.consultar{font-size:.9rem;color:var(--yellow)}
+    .modal-btns{display:flex;gap:.45rem;flex-wrap:wrap}
+    .btn-wa{flex:1;min-width:130px;background:#25d366;color:#fff;border:none;border-radius:10px;padding:.72rem .88rem;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.42rem;text-decoration:none;transition:opacity .2s;min-height:46px}
+    .btn-wa:hover{opacity:.88}
+    .btn-agregar-carrito{background:rgba(0,229,255,.12);color:var(--accent);border:1px solid rgba(0,229,255,.25);border-radius:10px;padding:.72rem .88rem;font-family:'Inter',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.38rem;transition:all .2s;white-space:nowrap;min-height:46px}
+    .btn-agregar-carrito:hover{background:rgba(0,229,255,.22)}
+    .btn-compartir{background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:.72rem .78rem;font-family:'Inter',sans-serif;font-size:.86rem;cursor:pointer;display:flex;align-items:center;gap:.38rem;transition:all .2s;min-height:46px}
+    .btn-compartir:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-cerrar-modal{background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:.72rem .88rem;font-family:'Inter',sans-serif;font-size:.86rem;cursor:pointer;transition:all .2s;min-height:46px}
+    .btn-cerrar-modal:hover{border-color:var(--accent);color:var(--accent)}
+    .modal-avisame{margin-top:.55rem;width:100%}
+    .btn-avisame{width:100%;background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:.5rem;font-family:'Inter',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.38rem;min-height:42px}
+    .btn-avisame:hover{background:rgba(239,68,68,.18)}
+
+    /* ── CARRITO PANEL ── */
+    .carrito-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:600;opacity:0;pointer-events:none;transition:opacity .22s}
+    .carrito-overlay.open{opacity:1;pointer-events:all}
+    .carrito-panel{position:fixed;top:0;right:0;height:100%;width:min(430px,100%);background:var(--bg);border-left:1px solid var(--border);z-index:601;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+    .carrito-overlay.open .carrito-panel{transform:translateX(0)}
+    .carrito-head{padding:1rem 1.2rem;border-bottom:2px solid var(--yellow);display:flex;align-items:center;justify-content:space-between;background:var(--card)}
+    .carrito-titulo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+    .btn-cerrar-carrito{background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer;padding:.2rem .5rem;transition:color .2s;min-height:38px}
+    .btn-cerrar-carrito:hover{color:var(--text)}
+    .carrito-body{flex:1;overflow-y:auto;padding:.85rem 1.1rem;display:flex;flex-direction:column;gap:.75rem}
+    .carrito-body::-webkit-scrollbar{width:4px}
+    .carrito-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+    /* Sección carrito */
+    .cart-section{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .cart-section-body{padding:.85rem 1rem}
+    .cart-section-titulo{font-weight:700;font-size:.88rem;margin-bottom:.6rem;color:var(--text)}
+    /* Estado */
+    .cart-estado-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.84rem}
+    .cart-estado-row:last-child{border-bottom:none}
+    .cart-estado-label{color:var(--muted)}
+    .cart-badge-online{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);font-size:.72rem;font-weight:700;padding:.18rem .6rem;border-radius:20px}
+    .cart-badge-stock{color:var(--green);font-size:.82rem;font-weight:600}
+    /* Horario */
+    .cart-horario-titulo{font-weight:700;font-size:.88rem;margin-bottom:.35rem}
+    .cart-horario-sub{font-size:.76rem;color:var(--muted);margin-bottom:.5rem}
+    .cart-horario-horas{font-size:.84rem;margin-bottom:.25rem}
+    .cart-horario-horas span{color:var(--yellow);font-weight:700}
+    .cart-cuenta-regresiva{font-size:.84rem;margin-bottom:.25rem}
+    .cart-cuenta-regresiva strong{color:var(--yellow);font-weight:700}
+    .cart-badge-abierto{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);font-size:.72rem;font-weight:700;padding:.22rem .7rem;border-radius:20px;display:inline-block;margin-bottom:.5rem}
+    .cart-badge-cerrado{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25);font-size:.72rem;font-weight:700;padding:.22rem .7rem;border-radius:20px;display:inline-block;margin-bottom:.5rem}
+    /* Items */
+    .carrito-item{display:flex;align-items:center;gap:.65rem;padding:.55rem 0;border-bottom:1px solid var(--border)}
+    .carrito-item:last-child{border-bottom:none}
+    .ci-emoji{font-size:1.3rem;flex-shrink:0}
+    .ci-info{flex:1;min-width:0}
+    .ci-nombre{font-size:.84rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .ci-tipo{font-size:.68rem;color:var(--muted)}
+    .ci-precio{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;color:var(--accent);flex-shrink:0}
+    .btn-rm{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;padding:.2rem;transition:color .15s;flex-shrink:0;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center}
+    .btn-rm:hover{color:var(--red)}
+    .carrito-empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+    .carrito-empty div{font-size:2.4rem;margin-bottom:.72rem}
+    /* Cupón */
+    .cupon-wrap{display:flex;gap:.5rem}
+    .cupon-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:.55rem .85rem;outline:none;transition:border-color .2s;text-transform:uppercase;letter-spacing:.05em}
+    .cupon-input::placeholder{color:var(--muted);text-transform:none;letter-spacing:0}
+    .cupon-input:focus{border-color:var(--yellow)}
+    .btn-cupon{background:var(--yellow);color:#000;border:none;border-radius:8px;padding:.55rem 1rem;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+    .btn-cupon:hover{opacity:.85}
+    .cupon-status{font-size:.76rem;margin-top:.4rem;color:var(--muted)}
+    .cupon-status.ok{color:var(--green)}
+    .cupon-status.err{color:var(--red)}
+    /* Totales */
+    .cart-total-row{display:flex;justify-content:space-between;align-items:center;font-size:.86rem;padding:.3rem 0;border-bottom:1px solid var(--border)}
+    .cart-total-row:last-child{border-bottom:none;font-weight:700;font-size:.95rem;margin-top:.2rem}
+    .cart-total-row.descuento{color:var(--green)}
+    /* Pago */
+    .pago-steps{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem}
+    .pago-step{font-size:.8rem;color:var(--muted);display:flex;gap:.5rem;line-height:1.5}
+    .pago-step span{color:var(--yellow);font-weight:700;flex-shrink:0}
+    .pago-aviso{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--red);margin-bottom:.75rem}
+    .pago-dato{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .85rem;margin-bottom:.45rem}
+    .pago-dato-label{font-size:.68rem;color:var(--yellow);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.15rem}
+    .pago-dato-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+    .pago-dato-valor{font-size:.86rem;font-weight:600;color:var(--text)}
+    .btn-copiar{background:var(--yellow);color:#000;border:none;border-radius:6px;padding:.28rem .7rem;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0}
+    .btn-copiar:hover{opacity:.85}
+    .pago-titular{font-size:.8rem;color:var(--muted);margin-bottom:.6rem;display:flex;align-items:center;gap:.35rem}
+    /* Botón finalizar */
+    .btn-finalizar{width:100%;background:#25d366;color:#fff;border:none;border-radius:10px;padding:.85rem;font-family:'Inter',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .2s;min-height:48px}
+    .btn-finalizar:hover{opacity:.88}
+    .btn-vaciar{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:.46rem;font-family:'Inter',sans-serif;font-size:.76rem;cursor:pointer;margin-top:.42rem;transition:all .2s;min-height:38px}
+    .btn-vaciar:hover{border-color:var(--red);color:var(--red)}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:5.5rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.55rem 1.05rem;font-size:.8rem;color:var(--text);z-index:700;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    /* ── WA FLOTANTE ── */
+    .wa-btn{position:fixed;bottom:1.2rem;right:1.2rem;z-index:400;background:#25d366;color:#fff;border:none;border-radius:50px;padding:.6rem 1rem;display:flex;align-items:center;gap:.48rem;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;box-shadow:0 4px 18px rgba(37,211,102,.4);transition:transform .2s,box-shadow .2s;animation:waPulse 2.5s ease-in-out infinite}
+    .wa-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 6px 26px rgba(37,211,102,.55);animation:none}
+
+    footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:.85rem 1.25rem;text-align:center;color:var(--muted);font-size:.74rem}
+    footer strong{color:var(--accent)}
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes waPulse{0%,100%{box-shadow:0 4px 18px rgba(37,211,102,.4)}50%{box-shadow:0 4px 30px rgba(37,211,102,.7)}}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.7}}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:768px){
+      .tabs-bar{display:none}
+      .tabs-mobile{display:block}
+      .header-inner{padding:.55rem .85rem;gap:.5rem}
+      .header-right{gap:.38rem}
+      main{padding:.85rem .85rem 4rem}
+      .toolbar{padding:.65rem .85rem .12rem}
+      .home-hero{padding:1.6rem .4rem 1.3rem}
+      .home-grid{grid-template-columns:1fr 1fr;gap:.68rem}
+      .home-card{padding:.92rem .95rem;gap:.62rem}
+      .home-card-icon{width:40px;height:40px;font-size:1.65rem}
+      .grid-juegos{grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:.68rem}
+      .streaming-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.68rem}
+      .novedades-grid,.vistos-grid{grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+      .modal{border-radius:18px 18px 0 0;max-width:100%}
+      .modal-btns{flex-wrap:wrap}
+      .btn-wa{flex:1;min-width:0}
+      .contacto-alt{grid-template-columns:1fr}
+      .steps-grid{grid-template-columns:1fr}
+      .garantia-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:420px){
+      .home-grid{grid-template-columns:1fr}
+      .toolbar-right{width:100%;justify-content:flex-end}
+    }
+    /* Safe area iOS */
+    @supports(padding-bottom: env(safe-area-inset-bottom)){
+      .wa-btn{bottom:calc(1.2rem + env(safe-area-inset-bottom))}
+      main{padding-bottom:calc(5rem + env(safe-area-inset-bottom))}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── CARRITO ── -->
+<div class="carrito-overlay" id="carrito-overlay" onclick="cerrarCarrito(event)">
+  <div class="carrito-panel">
+    <div class="carrito-head">
+      <div class="carrito-titulo">🏪 Finalizá tu compra</div>
+      <button class="btn-cerrar-carrito" onclick="toggleCarrito()">✕</button>
+    </div>
+    <div class="carrito-body" id="carrito-body">
+
+      <!-- ESTADO -->
+      <div class="cart-section">
+        <div class="cart-section-body">
+          <div class="cart-estado-row">
+            <span class="cart-estado-label">Recepción de pedidos</span>
+            <span class="cart-badge-online">Online</span>
+          </div>
+          <div class="cart-estado-row">
+            <span class="cart-estado-label">Estado del pedido</span>
+            <span class="cart-badge-stock">Todos los productos en stock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HORARIO -->
+      <div class="cart-section">
+        <div class="cart-section-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+            <div class="cart-horario-titulo">Estado de atención</div>
+            <div id="cart-badge-horario" class="cart-badge-abierto">ABIERTO AHORA</div>
+          </div>
+          <div class="cart-horario-sub" id="cart-hora-arg"></div>
+          <div class="cart-horario-horas">Horario de hoy: <span>10:00 - 22:00 hs</span></div>
+          <div class="cart-cuenta-regresiva" id="cart-countdown"></div>
+          <div style="font-size:.76rem;color:var(--muted);margin-top:.2rem" id="cart-horario-msg"></div>
+        </div>
+      </div>
+
+      <!-- PRODUCTOS -->
+      <div class="cart-section" id="cart-section-items" style="display:none">
+        <div class="cart-section-body">
+          <div class="cart-section-titulo">Detalle del stock</div>
+          <div id="carrito-items"></div>
+        </div>
+      </div>
+
+      <!-- VACÍO -->
+      <div class="carrito-empty" id="carrito-empty">
+        <div>🛒</div>
+        Tu carrito está vacío.<br>
+        <small style="color:var(--muted)">Agregá productos desde el catálogo.</small>
+      </div>
+
+      <!-- CUPÓN -->
+      <div class="cart-section" id="cart-section-cupon" style="display:none">
+        <div class="cart-section-body">
+          <div class="cart-section-titulo">Cupón de descuento</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-bottom:.65rem">Aplicá o quitá tu cupón antes de confirmar el pedido.</div>
+          <div class="cupon-wrap">
+            <input class="cupon-input" id="cupon-input" type="text" placeholder="Ingresar cupón"/>
+            <button class="btn-cupon" onclick="aplicarCupon()">Aplicar</button>
+          </div>
+          <div class="cupon-status" id="cupon-status">Sin cupón aplicado.</div>
+        </div>
+      </div>
+
+      <!-- TOTALES -->
+      <div class="cart-section" id="cart-section-total" style="display:none">
+        <div class="cart-section-body">
+          <div class="cart-total-row">
+            <span style="color:var(--muted)">Subtotal</span>
+            <span id="cart-subtotal">$0</span>
+          </div>
+          <div class="cart-total-row descuento" id="cart-row-descuento" style="display:none">
+            <span>Descuento</span>
+            <span id="cart-descuento-val"></span>
+          </div>
+          <div class="cart-total-row">
+            <span>Total final</span>
+            <span id="cart-total-final" style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--accent)">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGO -->
+      <div class="cart-section" id="cart-section-pago" style="display:none">
+        <div class="cart-section-body">
+          <div class="cart-section-titulo">Paso a paso para pagar</div>
+          <div class="pago-steps">
+            <div class="pago-step"><span>1.</span> Transferí al alias o CVU indicado debajo.</div>
+            <div class="pago-step"><span>2.</span> Presioná "Enviar pedido por WhatsApp".</div>
+            <div class="pago-step"><span>3.</span> En el chat de WhatsApp mandanos el comprobante junto con el carrito.</div>
+            <div class="pago-step"><span>4.</span> Activamos tu producto al instante una vez acreditado el pago.</div>
+          </div>
+          <div class="pago-aviso">⛔ El producto se entrega <strong style="margin-left:.2rem">únicamente cuando el pago se acredita.</strong></div>
+          <div class="pago-titular">👤 <strong>Titular:</strong>&nbsp; TU NOMBRE ACÁ</div>
+          <div class="pago-dato">
+            <div class="pago-dato-label">Alias</div>
+            <div class="pago-dato-row">
+              <span class="pago-dato-valor" id="pago-alias">TU.ALIAS.ACÁ</span>
+              <button class="btn-copiar" onclick="copiarDato('pago-alias')">Copiar</button>
+            </div>
+          </div>
+          <div class="pago-dato">
+            <div class="pago-dato-label">CVU/CBU</div>
+            <div class="pago-dato-row">
+              <span class="pago-dato-valor" id="pago-cvu">TU CVU ACÁ</span>
+              <button class="btn-copiar" onclick="copiarDato('pago-cvu')">Copiar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BTN FINALIZAR -->
+      <div id="cart-section-btn" style="display:none">
+        <button class="btn-finalizar" onclick="finalizarPedido()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar Pedido por WhatsApp
+        </button>
+        <button class="btn-vaciar" onclick="vaciarCarrito()">🗑️ Vaciar carrito</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-panel">
+    <div class="modal-handle"></div>
+    <div id="modal-img-wrap"></div>
+    <div class="modal-body">
+      <div class="modal-nombre" id="modal-nombre"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-precios" id="modal-precios"></div>
+      <div class="modal-btns">
+        <a class="btn-wa" id="modal-wa" href="#" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Consultar
+        </a>
+        <button class="btn-agregar-carrito" onclick="agregarDesdeModal()">🛒</button>
+        <button class="btn-compartir" onclick="compartirJuego()" title="Copiar link">🔗</button>
+        <button class="btn-cerrar-modal" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-avisame" id="modal-avisame" style="display:none">
+        <button class="btn-avisame" onclick="avisameDisponible()">🔔 Avisame cuando esté disponible</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BANNER ANUNCIO ── -->
+<div id="banner-anuncio">
+  <span id="banner-texto">🔥 ¡Promos activas esta semana! 2 juegos por precio especial</span>
+  <button class="banner-close" onclick="cerrarBanner()">✕</button>
+</div>
+
+<!-- ── HORARIO BANNER ── -->
+<div id="horario-banner">
+  <span class="dot-live"></span>
+  <span id="horario-texto">Cargando...</span>
+</div>
+
+<!-- ── PWA INSTALL BANNER ── -->
+<div id="pwa-banner">
+  <div class="pwa-icon">📲</div>
+  <div class="pwa-text">
+    <strong>Instalá ZentelStore como app</strong>
+    <span>Accedé al catálogo sin internet, más rápido</span>
+  </div>
+  <div class="pwa-btns">
+    <button class="pwa-install" onclick="instalarPWA()">Instalar</button>
+    <button class="pwa-dismiss" onclick="descartarPWA()">No gracias</button>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-inner">
+    <button class="logo" onclick="irTab('home')">
+      <div class="logo-icon">🎮</div>
+      Zentel<span>Store</span>
+    </button>
+    <div class="header-right">
+      <div class="search-wrap" id="search-wrap" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="buscador" type="text" placeholder="Buscá tu juego..."/>
+      </div>
+      <button class="usd-btn" id="usd-btn" onclick="toggleUSD()" title="Cambiar moneda">
+        <span id="usd-label">🇦🇷 ARS</span>
+      </button>
+      <button class="carrito-btn" onclick="toggleCarrito()">
+        🛒<span id="carrito-badge" class="carrito-badge">0</span>
+      </button>
+      <a href="admin.html" title="Panel Admin" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.38rem .6rem;display:flex;align-items:center;color:var(--muted);font-size:.82rem;text-decoration:none;transition:all .2s;flex-shrink:0" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='#a78bfa'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⚙️</a>
+    </div>
+  </div>
+</header>
+
+<!-- ── TABS DESKTOP ── -->
+<nav class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab active" data-tab="home">🏠 Inicio</button>
+    <button class="tab" data-tab="steam">🖥️ Steam</button>
+    <button class="tab" data-tab="ps4">🎮 PS4</button>
+    <button class="tab" data-tab="ps5">🎮 PS5</button>
+    <button class="tab" data-tab="promos">🔥 Promos</button>
+    <button class="tab" data-tab="psplus">🏆 PS Plus</button>
+    <button class="tab" data-tab="streaming">📺 Streaming</button>
+    <button class="tab" data-tab="como">❓ Cómo comprar</button>
+    <button class="tab" data-tab="productividad">💼 Productividad</button>
+    <button class="tab" data-tab="contacto">📩 Contacto</button>
+  </div>
+</nav>
+
+<!-- ── TABS MOBILE ── -->
+<div class="tabs-mobile">
+  <select class="tab-select" id="tab-select" onchange="irTab(this.value)">
+    <option value="home">🏠 Inicio</option>
+    <option value="steam">🖥️ Steam / PC</option>
+    <option value="ps4">🎮 PS4</option>
+    <option value="ps5">🎮 PS5</option>
+    <option value="promos">🔥 Promos</option>
+    <option value="psplus">🏆 PS Plus & Monedas</option>
+    <option value="streaming">📺 Streaming</option>
+    <option value="como">❓ Cómo comprar</option>
+    <option value="productividad">💼 Productividad</option>
+    <option value="contacto">📩 Contacto</option>
+  </select>
+</div>
+
+<!-- ── TOOLBAR ── -->
+<div class="toolbar" id="toolbar" style="display:none">
+  <button class="btn-filtro active" data-filtro="todos">Todos</button>
+  <button class="btn-filtro" data-filtro="disponible">✅ Disponibles</button>
+  <button class="btn-filtro" data-filtro="no-disponible">❌ Sin stock</button>
+  <div class="toolbar-right">
+    <div class="stat-pill" id="stat-pill" style="display:none">
+      <span class="stat-dot dot-blue"></span><span id="stat-total">0</span>
+      <span class="stat-dot dot-green"></span><span id="stat-disp">0</span>
+    </div>
+    <select class="sort-select" id="sort-select" onchange="sortChanged()">
+      <option value="default">A → Z</option>
+      <option value="precio-asc">💲 Menor precio</option>
+      <option value="precio-desc">💲 Mayor precio</option>
+    </select>
+    <div class="view-toggle">
+      <button class="btn-view active" id="btn-grid" onclick="setView('grid')" title="Grilla">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </button>
+      <button class="btn-view" id="btn-lista" onclick="setView('lista')" title="Lista">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- HOME -->
+  <div class="panel active" id="panel-home">
+    <div class="home-hero">
+      <div class="home-badge"><span class="stat-dot dot-green"></span> Tienda activa · Activación inmediata</div>
+      <h1>Bienvenido a<br><span>ZentelStore</span></h1>
+      <p>Steam, PS4, PS5, Streaming y más. Encontrá lo que buscás.</p>
+      <div class="home-search" id="home-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="home-buscador" type="text" placeholder="Buscá en todo el catálogo..."/>
+        <div class="home-search-results" id="home-search-results"></div>
+      </div>
+    </div>
+
+    <div id="vistos-section" style="display:none;margin-bottom:1.5rem">
+      <div class="home-section-titulo">👁️ Vistos recientemente</div>
+      <div class="vistos-grid" id="vistos-grid"></div>
+    </div>
+    <div id="favs-section" style="display:none;margin-bottom:1.5rem">
+      <div class="home-section-titulo">❤️ Tus favoritos</div>
+      <div class="favs-grid" id="favs-grid"></div>
+    </div>
+    <div id="novedades-section" style="display:none;margin-bottom:1.5rem">
+      <div class="home-section-titulo">🆕 Últimas novedades <em>Steam</em></div>
+      <div class="novedades-grid" id="novedades-grid"></div>
+    </div>
+
+    <div class="home-grid">
+      <div class="home-card" style="animation-delay:0ms" onclick="irTab('steam')">
+        <div class="home-card-icon">🖥️</div>
+        <div class="home-card-info"><div class="home-card-titulo">Steam / PC</div><div class="home-card-desc">Miles de juegos para activar en Steam.</div><div class="home-card-badge">47k+ juegos</div></div>
+      </div>
+      <div class="home-card" style="animation-delay:55ms" onclick="irTab('ps4')">
+        <div class="home-card-icon">🎮</div>
+        <div class="home-card-info"><div class="home-card-titulo">PlayStation 4</div><div class="home-card-desc">Tu cuenta o la nuestra, al mejor precio.</div><div class="home-card-badge">1.037 juegos</div></div>
+      </div>
+      <div class="home-card" style="animation-delay:110ms" onclick="irTab('ps5')">
+        <div class="home-card-icon">🎮</div>
+        <div class="home-card-info"><div class="home-card-titulo">PlayStation 5</div><div class="home-card-desc">Los mejores títulos de PS5.</div><div class="home-card-badge">502 juegos</div></div>
+      </div>
+      <div class="home-card" style="animation-delay:165ms" onclick="irTab('promos')">
+        <div class="home-card-icon">🔥</div>
+        <div class="home-card-info"><div class="home-card-titulo">Promos</div><div class="home-card-desc">2 juegos por precio fijo.</div><div class="home-card-badge">Ofertas vigentes</div></div>
+      </div>
+      <div class="home-card" style="animation-delay:220ms" onclick="irTab('psplus')">
+        <div class="home-card-icon">🏆</div>
+        <div class="home-card-info"><div class="home-card-titulo">PS Plus & Monedas</div><div class="home-card-desc">Suscripciones, PSN, Robux, V-Bucks.</div><div class="home-card-badge">Game Pass incluido</div></div>
+      </div>
+      <div class="home-card" style="animation-delay:275ms" onclick="irTab('streaming')">
+        <div class="home-card-icon">📺</div>
+        <div class="home-card-info"><div class="home-card-titulo">Streaming</div><div class="home-card-desc">Netflix, Disney+, MAX y más.</div><div class="home-card-badge">1 perfil · 30 días</div></div>
+      </div>
+    </div>
+
+
+
+    <a class="home-wa" href="https://wa.me/543518046904?text=Hola!%20Vi%20el%20cat%C3%A1logo%20y%20quiero%20consultar%20%F0%9F%8E%AE" target="_blank" rel="noopener">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <div class="home-wa-text"><strong>¿Dudas? Escribinos por WhatsApp</strong><span>Respondemos rápido · Activación al instante</span></div>
+    </a>
+  </div>
+
+  <!-- STEAM -->
+  <div class="panel" id="panel-steam">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+      <div style="background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:12px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.65rem">
+        <span style="font-size:1.5rem;flex-shrink:0">📦</span>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.2rem">Directo a tu Biblioteca</div>
+          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Activación e instalación inmediata en tu cuenta de Steam.</div>
+        </div>
+      </div>
+      <div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:12px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.65rem">
+        <span style="font-size:1.5rem;flex-shrink:0">🔑</span>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:#a78bfa;margin-bottom:.2rem">Entrega de Key Privada</div>
+          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Sin acceso remoto, garantizando tu seguridad.</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.38rem;margin-bottom:.82rem;flex-wrap:wrap">
+      <button class="btn-sub active" data-sub="disponibles">✅ Disponibles</button>
+      <button class="btn-sub" data-sub="drm">⚠️ Con DRM</button>
+    </div>
+    <div class="loading-msg" id="loading-steam"><div class="spinner"></div><span>Cargando catálogo Steam...</span></div>
+    <div class="grid-juegos" id="grid-steam"></div>
+    <div class="paginacion" id="pag-steam"></div>
+  </div>
+
+  <!-- PS4 -->
+  <div class="panel" id="panel-ps4">
+
+    <div class="loading-msg" id="loading-ps4"><div class="spinner"></div><span>Cargando PS4...</span></div>
+    <div class="grid-juegos" id="grid-ps4"></div>
+    <div class="paginacion" id="pag-ps4"></div>
+  </div>
+
+  <!-- PS5 -->
+  <div class="panel" id="panel-ps5">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+      <div style="background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:12px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.65rem">
+        <span style="font-size:1.5rem;flex-shrink:0">👑</span>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.2rem">Cuenta Primaria</div>
+          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Tenés acceso al juego en tu cuenta principal sin problema.</div>
+        </div>
+      </div>
+      <div style="background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);border-radius:12px;padding:.85rem 1rem;display:flex;align-items:flex-start;gap:.65rem">
+        <span style="font-size:1.5rem;flex-shrink:0">🎮</span>
+        <div>
+          <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:#a78bfa;margin-bottom:.2rem">Cuenta Secundaria</div>
+          <div style="font-size:.76rem;color:var(--muted);line-height:1.5">Solo podés jugar con la cuenta que te damos.</div>
+        </div>
+      </div>
+    </div>
+    <div class="loading-msg" id="loading-ps5"><div class="spinner"></div><span>Cargando PS5...</span></div>
+    <div class="grid-juegos" id="grid-ps5"></div>
+    <div class="paginacion" id="pag-ps5"></div>
+  </div>
+
+  <!-- PROMOS -->
+  <div class="panel" id="panel-promos">
+    <div class="loading-msg" id="loading-promos"><div class="spinner"></div><span>Cargando Promos...</span></div>
+    <div class="promos-grid" id="grid-promos"></div>
+  </div>
+
+  <!-- PS PLUS -->
+  <div class="panel" id="panel-psplus">
+    <div class="loading-msg" id="loading-psplus"><div class="spinner"></div><span>Cargando PS Plus...</span></div>
+    <div id="contenido-psplus"></div>
+  </div>
+
+  <!-- STREAMING -->
+  <div class="panel" id="panel-streaming">
+    <div class="loading-msg" id="loading-streaming"><div class="spinner"></div><span>Cargando Streaming...</span></div>
+    <div class="streaming-grid" id="grid-streaming"></div>
+    <!-- NOTAS STREAMING -->
+    <div class="notas-section" id="notas-streaming" style="display:none">
+      <div class="notas-titulo">📋 Notas y Condiciones</div>
+      <div class="nota-item"><span class="nota-icon">💲</span><span>Precios en <strong>ARS</strong>.</span></div>
+      <div class="nota-item"><span class="nota-icon">🛡️</span><span><strong>Garantía:</strong> por el tiempo contratado (en general <strong>30 días</strong> según cada plan).</span></div>
+      <div class="nota-item"><span class="nota-icon">🔒</span><span>Disponibilidad sujeta a stock y políticas de cada plataforma.</span></div>
+      <div class="nota-item"><span class="nota-icon">📞</span><span><strong>Contacto:</strong> <a href="https://wa.me/543518046904" target="_blank">WhatsApp +54 9 3518046904</a> (ZENTELSTORE)</span></div>
+    </div>
+  </div>
+
+  <!-- CÓMO COMPRAR -->
+  <div class="panel" id="panel-como">
+    <div class="como-hero">
+      <h2>¿Cómo <span>comprar</span>?</h2>
+      <p>El proceso es simple, rápido y seguro. Activación en minutos.</p>
+    </div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem">📋 Pasos para comprar</div>
+    <div class="steps-grid">
+      <div class="step-card" style="animation-delay:0ms"><div class="step-num">01</div><div class="step-icon">🔍</div><div class="step-titulo">Elegí tu juego</div><div class="step-desc">Explorá el catálogo, usá el buscador o consultanos directamente por WhatsApp qué estás buscando.</div></div>
+      <div class="step-card" style="animation-delay:80ms"><div class="step-num">02</div><div class="step-icon">💬</div><div class="step-titulo">Consultá por WhatsApp</div><div class="step-desc">Tocá el botón "Consultar por WhatsApp" en el juego que querés. Te respondemos en minutos.</div></div>
+      <div class="step-card" style="animation-delay:160ms"><div class="step-num">03</div><div class="step-icon">💳</div><div class="step-titulo">Realizá el pago</div><div class="step-desc">Aceptamos transferencia bancaria, Mercado Pago y efectivo. Te damos todos los datos por chat.</div></div>
+      <div class="step-card" style="animation-delay:240ms"><div class="step-num">04</div><div class="step-icon">⚡</div><div class="step-titulo">Activación inmediata</div><div class="step-desc">Una vez confirmado el pago, te enviamos los datos de acceso o activamos la cuenta en el momento.</div></div>
+    </div>
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem;margin-top:1.5rem">🛡️ Garantía y seguridad</div>
+    <div class="garantia-grid">
+      <div class="garantia-card" style="animation-delay:0ms"><div class="garantia-icon">✅</div><div><div class="garantia-titulo">Garantía de activación</div><div class="garantia-desc">Si el juego no activa correctamente, lo solucionamos o te devolvemos el dinero. Sin preguntas.</div></div></div>
+      <div class="garantia-card" style="animation-delay:60ms"><div class="garantia-icon">🔒</div><div><div class="garantia-titulo">Compra segura</div><div class="garantia-desc">Más de 500 clientes satisfechos. Operamos con total transparencia y sin letra chica.</div></div></div>
+      <div class="garantia-card" style="animation-delay:120ms"><div class="garantia-icon">⚡</div><div><div class="garantia-titulo">Respuesta rápida</div><div class="garantia-desc">Atendemos de 9:00 a 22:00 hs. Tiempo promedio de respuesta: menos de 10 minutos.</div></div></div>
+      <div class="garantia-card" style="animation-delay:180ms"><div class="garantia-icon">📦</div><div><div class="garantia-titulo">Amplio catálogo</div><div class="garantia-desc">Miles de juegos de Steam, PS4, PS5, servicios de streaming y suscripciones disponibles.</div></div></div>
+    </div>
+
+    <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.85rem;margin-top:1.5rem">❓ Preguntas frecuentes</div>
+    <div id="faq-list"></div>
+
+    <div style="text-align:center;margin-top:1.8rem">
+      <a href="https://wa.me/543518046904?text=Hola!%20Quiero%20consultar%20antes%20de%20comprar%20%F0%9F%8E%AE" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.5rem;background:#25d366;color:#fff;text-decoration:none;padding:.75rem 1.5rem;border-radius:10px;font-weight:700;font-size:.92rem">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Consultá antes de comprar
+      </a>
+    </div>
+  </div>
+
+  <!-- PRODUCTIVIDAD -->
+  <div class="panel" id="panel-productividad">
+    <div class="prod-grid">
+
+      <!-- CANVA PRO -->
+      <div class="prod-card">
+        <div class="prod-header">
+          <div class="prod-header-icon" style="background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.3)">🎨</div>
+          <div class="prod-header-nombre">Canva Pro</div>
+        </div>
+        <div class="prod-body">
+          <div class="prod-regalo">🎁 Con cualquier compra de Canva Pro, <strong>curso de regalo.</strong></div>
+          <div class="prod-plan">
+            <div class="prod-plan-titulo">PLAN 1 — Canva Económico</div>
+            <select class="prod-select" onchange="seleccionarPlan(this,'Canva Pro')">
+              <option value="">Seleccioná un plan</option>
+              <option value="2400">1 Mes — $2.400</option>
+              <option value="3200">2 Meses — $3.200</option>
+              <option value="4000">3 Meses — $4.000</option>
+              <option value="4600">4 Meses — $4.600</option>
+              <option value="5600">6 Meses — $5.600</option>
+              <option value="8000">12 Meses — $8.000</option>
+            </select>
+            <button class="btn-add-cart" id="btn-canva" onclick="addProd('btn-canva','Canva Pro','🎨')">Añadir al Carrito 🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHATGPT -->
+      <div class="prod-card">
+        <div class="prod-header">
+          <div class="prod-header-icon" style="background:rgba(16,163,127,.15);border-color:rgba(16,163,127,.3)">🤖</div>
+          <div class="prod-header-nombre">Chat GPT Plus</div>
+        </div>
+        <div class="prod-body">
+          <div class="prod-plan">
+            <div class="prod-plan-titulo">Planes Disponibles</div>
+            <div class="prod-garantia">
+              <div class="prod-garantia-titulo">Garantía de Activación</div>
+              <div class="prod-garantia-item">Garantía solo de activación.</div>
+              <div class="prod-garantia-item">CHAT GPT PLUS se envía por invitación a tu correo.</div>
+            </div>
+            <select class="prod-select" onchange="seleccionarPlan(this,'ChatGPT Plus')">
+              <option value="">Seleccioná un plan</option>
+              <option value="8000">1 Mes — $8.000</option>
+            </select>
+            <button class="btn-add-cart" id="btn-chatgpt" onclick="addProd('btn-chatgpt','ChatGPT Plus','🤖')">Añadir al Carrito 🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CAPCUT -->
+      <div class="prod-card">
+        <div class="prod-header">
+          <div class="prod-header-icon" style="background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.15)">✂️</div>
+          <div class="prod-header-nombre">CapCut Pro</div>
+        </div>
+        <div class="prod-body">
+          <div class="prod-plan">
+            <div class="prod-plan-titulo">Cuenta Completa (PC, Celular, Tablet)</div>
+            <select class="prod-select" onchange="seleccionarPlan(this,'CapCut Pro')">
+              <option value="">Seleccioná un plan</option>
+              <option value="8000">30 Días — $8.000</option>
+            </select>
+            <button class="btn-add-cart" id="btn-capcut" onclick="addProd('btn-capcut','CapCut Pro','✂️')">Añadir al Carrito 🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERPLEXITY -->
+      <div class="prod-card">
+        <div class="prod-header">
+          <div class="prod-header-icon" style="background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.3)">🔍</div>
+          <div class="prod-header-nombre">Perplexity Premium</div>
+        </div>
+        <div class="prod-body">
+          <div class="prod-plan">
+            <div class="prod-plan-titulo">Cuenta Compartida (30 días)</div>
+            <div class="prod-plan-desc">Funciones: <strong>DeepSearch</strong>, análisis de imágenes, modelos avanzados, respuesta rápida.</div>
+            <select class="prod-select" onchange="seleccionarPlan(this,'Perplexity Premium')">
+              <option value="">Seleccioná un plan</option>
+              <option value="8000">30 Días — $8.000</option>
+            </select>
+            <button class="btn-add-cart" id="btn-perplexity" onclick="addProd('btn-perplexity','Perplexity Premium','🔍')">Añadir al Carrito 🛒</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GEMINI -->
+      <div class="prod-card">
+        <div class="prod-header">
+          <div class="prod-header-icon" style="background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3)">✨</div>
+          <div class="prod-header-nombre">Gemini Advanced</div>
+        </div>
+        <div class="prod-body">
+          <div class="prod-plan">
+            <div class="prod-plan-titulo">Plan Anual</div>
+            <div class="prod-garantia">
+              <div class="prod-garantia-titulo">Garantía de Activación</div>
+              <div class="prod-garantia-item">Garantía de activación incluida.</div>
+            </div>
+            <select class="prod-select" onchange="seleccionarPlan(this,'Gemini Advanced')">
+              <option value="">Seleccioná un plan</option>
+              <option value="14000">12 Meses — $14.000</option>
+            </select>
+            <button class="btn-add-cart" id="btn-gemini" onclick="addProd('btn-gemini','Gemini Advanced','✨')">Añadir al Carrito 🛒</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NOTAS Y CONDICIONES -->
+    <div class="notas-section">
+      <div class="notas-titulo">📋 Notas y Condiciones</div>
+      <div class="nota-item"><span class="nota-icon">💲</span><span>Precios en <strong>ARS</strong> salvo donde se indique USDT.</span></div>
+      <div class="nota-item"><span class="nota-icon">🛡️</span><span><strong>Garantía:</strong> por el tiempo contratado (en general <strong>30 días</strong> según cada plan).</span></div>
+      <div class="nota-item"><span class="nota-icon">🔒</span><span>Disponibilidad sujeta a stock y políticas de cada plataforma.</span></div>
+      <div class="nota-item"><span class="nota-icon">📞</span><span><strong>Contacto:</strong> <a href="https://wa.me/543518046904" target="_blank">WhatsApp +54 9 3518046904</a> (ZENTELSTORE)</span></div>
+    </div>
+  </div>
+
+  <!-- CONTACTO -->
+  <div class="panel" id="panel-contacto">
+    <div class="contacto-wrap">
+      <div class="contacto-hero">
+        <h2>📩 <span>Contacto</span></h2>
+        <p>Completá el formulario y te respondemos por WhatsApp lo antes posible.</p>
+      </div>
+      <div class="contacto-form">
+        <div class="form-group"><label>Tu nombre *</label><input id="c-nombre" type="text" placeholder="Ej: Matías González"/></div>
+        <div class="form-group"><label>¿Qué buscás? *</label>
+          <select id="c-categoria">
+            <option value="">Seleccioná una categoría</option>
+            <option value="Steam / PC">🖥️ Juego de Steam / PC</option>
+            <option value="PlayStation 4">🎮 Juego de PS4</option>
+            <option value="PlayStation 5">🎮 Juego de PS5</option>
+            <option value="Streaming">📺 Cuenta de Streaming</option>
+            <option value="PS Plus / Monedas">🏆 PS Plus / Monedas</option>
+            <option value="Promo">🔥 Aprovechar una promo</option>
+            <option value="otro">💬 Otra consulta</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nombre del juego / servicio (opcional)</label><input id="c-juego" type="text" placeholder="Ej: God of War, Netflix Premium..."/></div>
+        <div class="form-group"><label>Tu mensaje *</label><textarea id="c-mensaje" placeholder="Contanos qué necesitás, cantidad, dudas, etc."></textarea></div>
+        <button class="btn-enviar-contacto" onclick="enviarContacto()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar consulta por WhatsApp
+        </button>
+      </div>
+      <div class="contacto-alt">
+        <a class="contacto-alt-btn" href="https://wa.me/543518046904" target="_blank" rel="noopener">
+          <span>💬</span><strong>WhatsApp directo</strong><small>Chat inmediato</small>
+        </a>
+        <a class="contacto-alt-btn" href="#" onclick="irTab('como');return false">
+          <span>❓</span><strong>Cómo comprar</strong><small>Ver el proceso</small>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>ZentelStore</strong> © 2025 — Activación vía Steam / PlayStation
+</footer>
+
+<a class="wa-btn" href="https://wa.me/543518046904?text=Hola!%20Vi%20el%20cat%C3%A1logo%20%F0%9F%8E%AE" target="_blank" rel="noopener">
+  <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  Consultar
+</a>
+
+<a href="https://www.instagram.com/zentelstore" target="_blank" rel="noopener"
+   style="position:fixed;bottom:4.8rem;right:1.2rem;z-index:400;background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none;border-radius:50px;padding:.6rem 1rem;display:flex;align-items:center;gap:.48rem;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;text-decoration:none;box-shadow:0 4px 18px rgba(220,39,67,.4);transition:transform .2s,box-shadow .2s"
+   onmouseover="this.style.transform='translateY(-3px) scale(1.03)';this.style.boxShadow='0 6px 26px rgba(220,39,67,.55)'"
+   onmouseout="this.style.transform='';this.style.boxShadow='0 4px 18px rgba(220,39,67,.4)'">
+  <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  Instagram
+</a>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const WA='543518046904';
+const POR_PAGINA=50;
+const HORA_AP=9,HORA_CI=22;
+const TABS_FILTRO=['steam','ps4','ps5'];
+const ARCHIVOS={steam_disponibles:'juegos_disponibles.json',steam_drm:'juegos_drm.json',ps4:'ps4.json',ps5:'ps5.json',promos:'promos.json',psplus:'psplus.json',streaming:'streaming.json'};
+// Cotización USD — cambiar manualmente o via admin
+let COTIZ_USD=parseInt(localStorage.getItem('zs_cotiz')||'1500');
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+const S={
+  tab:'home',subSteam:'disponibles',filtro:'todos',orden:'default',vista:'grid',
+  paginas:{steam:1,ps4:1,ps5:1},
+  datos:{steam_disponibles:null,steam_drm:null,ps4:null,ps5:null,promos:null,psplus:null,streaming:null},
+  carrito:[],
+  favoritos:JSON.parse(localStorage.getItem('zs_favs')||'[]'),
+  vistos:JSON.parse(localStorage.getItem('zs_vistos')||'[]'),
+  modalActual:null,
+  modoUSD:false
+};
+
+// ═══════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════
+function fmt(n){
+  if(!n) return null;
+  if(S.modoUSD) return 'U$D '+(n/COTIZ_USD).toFixed(2);
+  return '$'+Number(n).toLocaleString('es-AR');
+}
+const waLink=t=>`https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
+function showToast(m,d=2200){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+
+// ═══════════════════════════════════════════
+//  USD TOGGLE
+// ═══════════════════════════════════════════
+function toggleUSD(){
+  if(!S.modoUSD){
+    const c=prompt(`Cotización USD actual: $${COTIZ_USD}\nIngresá la cotización (ej: 1300) o dejala igual:`);
+    if(c&&!isNaN(c)&&parseInt(c)>0){COTIZ_USD=parseInt(c);localStorage.setItem('zs_cotiz',COTIZ_USD);}
+  }
+  S.modoUSD=!S.modoUSD;
+  document.getElementById('usd-btn').classList.toggle('on',S.modoUSD);
+  document.getElementById('usd-label').textContent=S.modoUSD?'🇺🇸 USD':'🇦🇷 ARS';
+  if(TABS_FILTRO.includes(S.tab)) filtrarActual();
+  showToast(S.modoUSD?`💵 Mostrando precios en USD (1 USD = $${COTIZ_USD})`:'🇦🇷 Mostrando precios en ARS');
+}
+
+// ═══════════════════════════════════════════
+//  BANNER ANUNCIO
+// ═══════════════════════════════════════════
+(function(){
+  const dismissido=sessionStorage.getItem('zs_banner');
+  const texto=localStorage.getItem('zs_banner_texto');
+  if(texto) document.getElementById('banner-texto').textContent=texto;
+  if(!dismissido) document.getElementById('banner-anuncio').classList.add('show');
+})();
+function cerrarBanner(){document.getElementById('banner-anuncio').classList.remove('show');sessionStorage.setItem('zs_banner','1');}
+
+// ═══════════════════════════════════════════
+//  HORARIO
+// ═══════════════════════════════════════════
+function actualizarHorario(){
+  const h=new Date().getHours();
+  const abierto=h>=HORA_AP&&h<HORA_CI;
+  const b=document.getElementById('horario-banner');
+  const t=document.getElementById('horario-texto');
+  b.className=abierto?'':'cerrado';
+  t.textContent=abierto?`Atendemos de ${HORA_AP}:00 a ${HORA_CI}:00 hs · Respondemos en minutos`:`Fuera de horario · Abrimos a las ${HORA_AP}:00 hs — Podés dejarnos tu consulta`;
+}
+actualizarHorario();
+
+// ═══════════════════════════════════════════
+//  PWA
+// ═══════════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  if(!localStorage.getItem('zs_pwa_dismissed'))
+    document.getElementById('pwa-banner').classList.add('show');
+});
+function instalarPWA(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(r=>{
+    if(r.outcome==='accepted') showToast('📲 ¡ZentelStore instalada!');
+    deferredPrompt=null;document.getElementById('pwa-banner').classList.remove('show');
+  });
+}
+function descartarPWA(){document.getElementById('pwa-banner').classList.remove('show');localStorage.setItem('zs_pwa_dismissed','1');}
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').then(()=>console.log('SW registrado')).catch(()=>{}));
+}
+
+// ═══════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>irTab(b.dataset.tab)));
+function irTab(tab){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.getElementById('tab-select').value=tab;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  S.tab=tab;
+  const cf=TABS_FILTRO.includes(tab);
+  document.getElementById('toolbar').style.display=cf?'flex':'none';
+  document.getElementById('search-wrap').style.display=cf?'':'none';
+  if(cf) actualizarStats();
+  if(tab==='home') renderHome();
+  else if(tab==='como') renderFAQ();
+  else cargarTab(tab);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Sub tabs Steam
+document.querySelectorAll('.btn-sub').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.btn-sub').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');S.subSteam=b.dataset.sub;S.paginas.steam=1;
+  document.getElementById('loading-steam').style.display='flex';
+  cargarTab('steam');
+}));
+
+// ═══════════════════════════════════════════
+//  SORT / VIEW
+// ═══════════════════════════════════════════
+function sortChanged(){S.orden=document.getElementById('sort-select').value;S.paginas[S.tab]=1;filtrarActual();}
+function setView(v){
+  S.vista=v;
+  document.getElementById('btn-grid').classList.toggle('active',v==='grid');
+  document.getElementById('btn-lista').classList.toggle('active',v==='lista');
+  ['steam','ps4','ps5'].forEach(t=>{const g=document.getElementById('grid-'+t);if(g)g.classList.toggle('view-lista',v==='lista');});
+}
+
+// Filtros
+document.querySelectorAll('.btn-filtro').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.btn-filtro').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');S.filtro=b.dataset.filtro;S.paginas[S.tab]=1;filtrarActual();
+}));
+let dbTimer;
+document.getElementById('buscador').addEventListener('input',()=>{clearTimeout(dbTimer);dbTimer=setTimeout(()=>{S.paginas[S.tab]=1;filtrarActual();},300);});
+function filtrarActual(){
+  const t=S.tab;if(!TABS_FILTRO.includes(t))return;
+  const key=t==='steam'?'steam_'+S.subSteam:t;
+  if(!S.datos[key])return;
+  renderJuegos(t,S.datos[key],t==='steam');
+}
+
+// ═══════════════════════════════════════════
+//  CACHÉ + FETCH
+// ═══════════════════════════════════════════
+const cache={};
+async function fetchConCache(key){
+  if(cache[key])return cache[key];
+  try{const g=sessionStorage.getItem('zs_'+key);if(g){cache[key]=JSON.parse(g);return cache[key];}}catch(e){}
+  const r=await fetch(ARCHIVOS[key]);const d=await r.json();cache[key]=d;
+  try{sessionStorage.setItem('zs_'+key,JSON.stringify(d));}catch(e){}
+  return d;
+}
+async function cargarTab(tab){
+  if(tab==='steam'){
+    const key='steam_'+S.subSteam;
+    if(!S.datos[key]){try{S.datos[key]=await fetchConCache(key);}catch{document.getElementById('loading-steam').innerHTML='<p style="color:var(--red)">⚠️ Error</p>';return;}}
+    document.getElementById('loading-steam').style.display='none';
+    renderJuegos('steam',S.datos[key],true);mostrarNovedades(S.datos[key]);return;
+  }
+  if(S.datos[tab]){renderTab(tab);return;}
+  try{S.datos[tab]=await fetchConCache(tab);renderTab(tab);}
+  catch{document.getElementById('loading-'+tab).innerHTML='<p style="color:var(--red)">⚠️ Error al cargar</p>';}
+}
+function renderTab(tab){
+  document.getElementById('loading-'+tab).style.display='none';
+  if(tab==='ps4')renderJuegos('ps4',S.datos.ps4,false);
+  else if(tab==='ps5')renderJuegos('ps5',S.datos.ps5,false);
+  else if(tab==='promos')renderPromos();
+  else if(tab==='psplus')renderPsplus();
+  else if(tab==='streaming')renderStreaming();
+}
+
+// ═══════════════════════════════════════════
+//  HOME
+// ═══════════════════════════════════════════
+function renderHome(){renderVistos();renderFavsHome();}
+
+// Buscador global
+let hsTimer;
+document.getElementById('home-buscador').addEventListener('input',function(){
+  clearTimeout(hsTimer);const q=this.value.trim().toLowerCase();
+  const res=document.getElementById('home-search-results');
+  if(q.length<2){res.classList.remove('show');return;}
+  hsTimer=setTimeout(()=>buscarGlobal(q),280);
+});
+document.addEventListener('click',e=>{if(!e.target.closest('#home-search-wrap'))document.getElementById('home-search-results').classList.remove('show');});
+function buscarGlobal(q){
+  const res=document.getElementById('home-search-results');
+  const fuentes=[{key:'steam_disponibles',tag:'Steam',icono:'🖥️'},{key:'ps4',tag:'PS4',icono:'🎮'},{key:'ps5',tag:'PS5',icono:'🎮'}];
+  let resultados=[];
+  fuentes.forEach(f=>{const d=S.datos[f.key];if(!d)return;d.filter(j=>j.nombre.toLowerCase().includes(q)).slice(0,4).forEach(j=>resultados.push({...j,_tag:f.tag,_icono:f.icono,_key:f.key}));});
+  if(S.datos.streaming){S.datos.streaming.forEach(cat=>{cat.servicios.filter(s=>s.servicio.toLowerCase().includes(q)).forEach(s=>{resultados.push({nombre:s.servicio,_tag:'Streaming',_icono:'📺',_key:'streaming',precio:s.items[0]?.precio,disponible:true,_stream:s,_cat:cat.categoria});});});}
+  resultados=resultados.slice(0,12);
+  if(!resultados.length){res.innerHTML='<div class="hsr-empty">Sin resultados</div>';res.classList.add('show');return;}
+  res.innerHTML=resultados.map((j,i)=>`<div class="hsr-item" data-i="${i}"><span style="font-size:.95rem;flex-shrink:0">${j._icono}</span><span class="hsr-nombre">${j.nombre}</span><span class="hsr-tag">${j._tag}</span><span class="hsr-precio">${j.precio?fmt(j.precio):(j.primario?fmt(j.primario):'Consultar')}</span></div>`).join('');
+  res.querySelectorAll('.hsr-item').forEach((el,i)=>el.addEventListener('click',()=>{document.getElementById('home-buscador').value='';res.classList.remove('show');abrirModalObj(resultados[i]);}));
+  res.classList.add('show');
+}
+function abrirModalObj(j){
+  if(j._stream){const it=j._stream.items[0];openModal({nombre:j.nombre,imagen:null,desc:`${j._stream.emoji} ${j._cat} · ${it.tipo}`,precios:[{label:'Precio',valor:fmt(it.precio),_val:it.precio}],waMsg:`Hola! Quiero consultar por *${j.nombre}* (Streaming) 📺`,disponible:true,obj:j});}
+  else if(j._key==='steam_disponibles'||j._key==='steam_drm'){openModal({nombre:j.nombre,imagen:j.imagen,desc:j.disponible?'✅ Disponible en Steam.':'⚠️ Requiere DRM.',precios:j.precio?[{label:'Precio',valor:fmt(j.precio),_val:j.precio}]:[{label:'Precio',valor:'Consultar',clase:'consultar',_val:0}],waMsg:`Hola! Quiero consultar por *${j.nombre}* (Steam) 🖥️`,disponible:j.disponible,obj:j});}
+  else{const plat=j._tag||'PS';const precios=[];if(j.primario)precios.push({label:'Primaria',valor:fmt(j.primario),_val:j.primario});if(j.secundario)precios.push({label:'Secundaria',valor:fmt(j.secundario),clase:'sec',_val:j.secundario});if(!precios.length)precios.push({label:'Precio',valor:'Sin stock',clase:'consultar',_val:0});openModal({nombre:j.nombre,imagen:null,desc:`🎮 ${plat}. ${j.disponible?'Disponible.':'Sin stock.'}`,precios,waMsg:`Hola! Quiero consultar por *${j.nombre}* (${plat}) 🎮`,disponible:j.disponible,obj:j});}
+}
+
+// Novedades
+function mostrarNovedades(datos){
+  if(!datos||!datos.length)return;
+  const muestra=[...datos].filter(j=>j.disponible).slice(-8).reverse();
+  if(!muestra.length)return;
+  document.getElementById('novedades-section').style.display='block';
+  const grid=document.getElementById('novedades-grid');grid.innerHTML='';
+  muestra.forEach((j,i)=>{
+    const div=document.createElement('div');div.className='nov-card';div.style.animationDelay=`${i*40}ms`;
+    div.innerHTML=`${j.imagen?`<img class="nov-img" src="${j.imagen}" alt="${j.nombre}" loading="lazy" onerror="this.style.display='none'">`:''}
+      <div class="nov-body"><div class="nov-nombre" title="${j.nombre}">${j.nombre}<span class="nov-tag">Steam</span></div>
+      <div class="nov-precio">${j.precio?fmt(j.precio):'Consultar'}</div></div>`;
+    div.addEventListener('click',()=>openModal({nombre:j.nombre,imagen:j.imagen,desc:'✅ Disponible en Steam.',precios:j.precio?[{label:'Precio',valor:fmt(j.precio),_val:j.precio}]:[{label:'Precio',valor:'Consultar',clase:'consultar',_val:0}],waMsg:`Hola! Quiero consultar por *${j.nombre}* (Steam) 🖥️`,disponible:true,obj:j}));
+    grid.appendChild(div);
+  });
+}
+
+// Vistos
+function agregarVisto(obj){
+  S.vistos=S.vistos.filter(v=>v.nombre!==obj.nombre);
+  S.vistos.unshift({nombre:obj.nombre,imagen:obj.imagen||null,precio:obj.precio||obj.primario||null,tag:obj._tag||'Juego'});
+  if(S.vistos.length>6)S.vistos.pop();
+  try{localStorage.setItem('zs_vistos',JSON.stringify(S.vistos));}catch(e){}
+  if(S.tab==='home')renderVistos();
+}
+function renderVistos(){
+  const sec=document.getElementById('vistos-section'),grid=document.getElementById('vistos-grid');
+  if(!S.vistos.length){sec.style.display='none';return;}
+  sec.style.display='block';grid.innerHTML='';
+  S.vistos.forEach((j,i)=>{
+    const div=document.createElement('div');div.className='nov-card';div.style.animationDelay=`${i*40}ms`;
+    div.innerHTML=`${j.imagen?`<img class="nov-img" src="${j.imagen}" alt="${j.nombre}" loading="lazy" onerror="this.style.display='none'">`:''}
+      <div class="nov-body"><div class="nov-nombre" title="${j.nombre}">${j.nombre}<span class="nov-tag">${j.tag}</span></div>
+      <div class="nov-precio">${j.precio?fmt(j.precio):'Consultar'}</div></div>`;
+    div.addEventListener('click',()=>openModal({nombre:j.nombre,imagen:j.imagen,desc:'',precios:j.precio?[{label:'Precio',valor:fmt(j.precio),_val:j.precio}]:[{label:'Precio',valor:'Consultar',clase:'consultar',_val:0}],waMsg:`Hola! Quiero consultar por *${j.nombre}* 🎮`,disponible:true,obj:j}));
+    grid.appendChild(div);
+  });
+}
+
+// Favoritos
+function toggleFavorito(obj,btn){
+  const idx=S.favoritos.findIndex(f=>f.nombre===obj.nombre);
+  if(idx===-1){S.favoritos.push({nombre:obj.nombre,imagen:obj.imagen||null,precio:obj.precio||obj.primario||null,tag:obj._tag||'Juego',obj});btn.classList.add('active');btn.textContent='❤️';showToast('❤️ Guardado en favoritos');}
+  else{S.favoritos.splice(idx,1);btn.classList.remove('active');btn.textContent='🤍';showToast('Eliminado de favoritos');}
+  try{localStorage.setItem('zs_favs',JSON.stringify(S.favoritos));}catch(e){}
+  if(S.tab==='home')renderFavsHome();
+}
+function renderFavsHome(){
+  const sec=document.getElementById('favs-section'),grid=document.getElementById('favs-grid');
+  if(!S.favoritos.length){sec.style.display='none';return;}
+  sec.style.display='block';grid.innerHTML='';
+  S.favoritos.forEach((j,i)=>{
+    const div=document.createElement('div');div.className='card';div.style.animationDelay=`${i*40}ms`;
+    div.innerHTML=`${j.imagen?`<img class="card-img" src="${j.imagen}" alt="${j.nombre}" loading="lazy" onerror="this.style.display='none'">`:''}
+      <div class="card-body"><div class="card-nombre" title="${j.nombre}">${j.nombre}</div>
+      <div class="card-footer"><span class="precio-steam">${j.precio?fmt(j.precio):'Consultar'}</span><span class="badge badge-ok">${j.tag||'Juego'}</span></div></div>`;
+    div.addEventListener('click',()=>abrirModalObj({...j,...(j.obj||{})}));
+    grid.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════
+//  CARRITO
+// ═══════════════════════════════════════════
+// DATOS DE PAGO — Cambiá estos valores cuando tengas el alias
+const PAGO_TITULAR = 'TU NOMBRE ACÁ';
+const PAGO_ALIAS   = 'TU.ALIAS.ACÁ';
+const PAGO_CVU     = 'TU CVU ACÁ';
+
+// CUPONES — Agregá tus cupones acá: { 'CODIGO': porcentaje }
+const CUPONES = {
+  // 'ZENTEL10': 10,
+  // 'PROMO20': 20,
+};
+let cuponAplicado = null;
+
+function toggleCarrito(){
+  document.getElementById('carrito-overlay').classList.toggle('open');
+  actualizarHorarioCarrito();
+}
+function cerrarCarrito(e){if(e.target===document.getElementById('carrito-overlay'))toggleCarrito();}
+
+function actualizarHorarioCarrito(){
+  const ahora = new Date();
+  const h = ahora.getHours(), m = ahora.getMinutes(), s = ahora.getSeconds();
+  const abierto = h >= HORA_AP && h < HORA_CI;
+  const badge = document.getElementById('cart-badge-horario');
+  const countdown = document.getElementById('cart-countdown');
+  const msg = document.getElementById('cart-horario-msg');
+  const horaEl = document.getElementById('cart-hora-arg');
+  if(horaEl) horaEl.textContent = `Hora Argentina: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if(abierto){
+    if(badge){badge.className='cart-badge-abierto';badge.textContent='ABIERTO AHORA';}
+    const restH = HORA_CI - h - 1;
+    const restM = 59 - m;
+    const restS = 59 - s;
+    if(countdown) countdown.innerHTML = `Cerramos en: <strong>${restH}h ${restM}m ${restS}s</strong>`;
+    if(msg) msg.textContent = `Hoy atendemos hasta las ${HORA_CI}:00 hs.`;
+  } else {
+    if(badge){badge.className='cart-badge-cerrado';badge.textContent='CERRADO AHORA';}
+    if(countdown) countdown.innerHTML = '';
+    if(msg) msg.textContent = `Abrimos a las ${HORA_AP}:00 hs. Podés dejarnos tu pedido igual.`;
+  }
+}
+setInterval(()=>{if(document.getElementById('carrito-overlay').classList.contains('open'))actualizarHorarioCarrito();},1000);
+
+function aplicarCupon(){
+  const codigo = document.getElementById('cupon-input').value.trim().toUpperCase();
+  const status = document.getElementById('cupon-status');
+  if(!codigo){status.className='cupon-status';status.textContent='Sin cupón aplicado.';return;}
+  if(CUPONES[codigo]){
+    cuponAplicado = {codigo, pct: CUPONES[codigo]};
+    status.className='cupon-status ok';
+    status.textContent=`✅ Cupón "${codigo}" aplicado — ${CUPONES[codigo]}% de descuento`;
+    actualizarCarritoUI();showToast(`🎟️ Cupón aplicado: ${CUPONES[codigo]}% off`);
+  } else {
+    cuponAplicado=null;
+    status.className='cupon-status err';
+    status.textContent='❌ Cupón inválido o expirado.';
+    actualizarCarritoUI();
+  }
+}
+
+function copiarDato(id){
+  const val = document.getElementById(id)?.textContent;
+  if(!val) return;
+  if(navigator.clipboard) navigator.clipboard.writeText(val).then(()=>showToast('📋 Copiado al portapapeles'));
+  else showToast('📋 '+val);
+}
+
+function agregarAlCarrito(nombre,precio,tipo,emoji){
+  S.carrito.push({nombre,precio,tipo,emoji:emoji||'🎮',id:Date.now()});
+  actualizarCarritoUI();showToast('🛒 Agregado al carrito');
+}
+function quitarDelCarrito(id){S.carrito=S.carrito.filter(i=>i.id!==id);cuponAplicado=null;actualizarCarritoUI();}
+function vaciarCarrito(){S.carrito=[];cuponAplicado=null;document.getElementById('cupon-input').value='';document.getElementById('cupon-status').textContent='Sin cupón aplicado.';document.getElementById('cupon-status').className='cupon-status';actualizarCarritoUI();showToast('🗑️ Carrito vaciado');}
+
+function actualizarCarritoUI(){
+  const count = S.carrito.length;
+  const badge = document.getElementById('carrito-badge');
+  badge.textContent=count; badge.classList.toggle('show',count>0);
+  const empty = document.getElementById('carrito-empty');
+  const secItems = document.getElementById('cart-section-items');
+  const secCupon = document.getElementById('cart-section-cupon');
+  const secTotal = document.getElementById('cart-section-total');
+  const secPago  = document.getElementById('cart-section-pago');
+  const secBtn   = document.getElementById('cart-section-btn');
+  // Update pago data
+  const aliasEl = document.getElementById('pago-alias');
+  const cvuEl   = document.getElementById('pago-cvu');
+  if(aliasEl) aliasEl.textContent = PAGO_ALIAS;
+  if(cvuEl)   cvuEl.textContent   = PAGO_CVU;
+  const titularEl = document.querySelector('.pago-titular');
+  if(titularEl) titularEl.innerHTML = `👤 <strong>Titular:</strong>&nbsp; ${PAGO_TITULAR}`;
+  if(!count){
+    empty.style.display='block';
+    [secItems,secCupon,secTotal,secPago,secBtn].forEach(el=>{if(el)el.style.display='none';});
+    return;
+  }
+  empty.style.display='none';
+  [secItems,secCupon,secTotal,secPago,secBtn].forEach(el=>{if(el)el.style.display='';});
+  // Items
+  const cont = document.getElementById('carrito-items');
+  cont.innerHTML = S.carrito.map(item=>`
+    <div class="carrito-item">
+      <span class="ci-emoji">${item.emoji}</span>
+      <div class="ci-info">
+        <div class="ci-nombre">${item.nombre}</div>
+        <div class="ci-tipo">${item.tipo}</div>
+      </div>
+      <span class="ci-precio">${item.precio?fmt(item.precio):'Consultar'}</span>
+      <button class="btn-rm" onclick="quitarDelCarrito(${item.id})">✕</button>
+    </div>`).join('');
+  // Totales
+  const subtotal = S.carrito.reduce((a,i)=>a+(i.precio||0),0);
+  const descuento = cuponAplicado ? Math.round(subtotal * cuponAplicado.pct / 100) : 0;
+  const total = subtotal - descuento;
+  document.getElementById('cart-subtotal').textContent = fmt(subtotal)||'A consultar';
+  document.getElementById('cart-total-final').textContent = fmt(total)||'A consultar';
+  const rowDesc = document.getElementById('cart-row-descuento');
+  if(descuento){
+    rowDesc.style.display='flex';
+    document.getElementById('cart-descuento-val').textContent = '-'+fmt(descuento);
+  } else {
+    rowDesc.style.display='none';
+  }
+}
+
+function finalizarPedido(){
+  if(!S.carrito.length)return;
+  const subtotal = S.carrito.reduce((a,i)=>a+(i.precio||0),0);
+  const descuento = cuponAplicado ? Math.round(subtotal * cuponAplicado.pct / 100) : 0;
+  const total = subtotal - descuento;
+  const lista = S.carrito.map(i=>`• ${i.nombre} (${i.tipo})${i.precio?' — '+fmt(i.precio):''}`).join('
+');
+  let msg = `Hola! Quiero hacer el siguiente pedido:
+
+${lista}
+
+`;
+  if(cuponAplicado) msg += `Cupón aplicado: ${cuponAplicado.codigo} (-${cuponAplicado.pct}%)
+`;
+  msg += `Total: ${fmt(total)||'A consultar'}
+
+Ya realicé la transferencia. ¡Gracias! 🎮`;
+  window.open(waLink(msg),'_blank');
+}
+
+function agregarDesdeModal(){
+  if(!S.modalActual)return;
+  const m=S.modalActual;
+  const precio=m.precios&&m.precios[0]?m.precios[0]._val:null;
+  agregarAlCarrito(m.nombre,precio,m.tipo||m.precios?.[0]?.label||'',m.emoji||'🎮');
+  closeModal();setTimeout(()=>toggleCarrito(),300);
+}
+
+// ═══════════════════════════════════════════
+//  MODAL (bottom sheet mobile)
+// ═══════════════════════════════════════════
+// Swipe to close
+let touchY=0;
+document.getElementById('modal-panel').addEventListener('touchstart',e=>{touchY=e.touches[0].clientY;},{passive:true});
+document.getElementById('modal-panel').addEventListener('touchmove',e=>{
+  const dy=e.touches[0].clientY-touchY;
+  if(dy>80) closeModal();
+},{passive:true});
+
+function openModal({nombre,imagen,desc,precios,waMsg,disponible,obj}){
+  agregarVisto(obj||{nombre,imagen,precio:precios?.[0]?._val,_tag:'Juego'});
+  S.modalActual={nombre,imagen,desc,precios,waMsg,disponible,obj,tipo:precios?.[0]?.label||'',emoji:obj?._icono||'🎮'};
+  const iw=document.getElementById('modal-img-wrap');
+  iw.innerHTML=imagen?`<img class="modal-img" src="${imagen}" alt="${nombre}" onerror="this.parentElement.innerHTML='<div class=modal-img-placeholder>🎮</div>'">`:`<div class="modal-img-placeholder">🎮</div>`;
+  document.getElementById('modal-nombre').textContent=nombre;
+  document.getElementById('modal-desc').textContent=desc||'';
+  document.getElementById('modal-precios').innerHTML=(precios||[]).map(p=>`<div class="modal-precio-bloque"><span class="modal-precio-label">${p.label}</span><span class="modal-precio-valor ${p.clase||''}">${p.valor}</span></div>`).join('');
+  document.getElementById('modal-wa').href=waLink(waMsg);
+  document.getElementById('modal-avisame').style.display=(!disponible)?'block':'none';
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeModal(e){
+  if(e&&e.target!==document.getElementById('modal-overlay'))return;
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';S.modalActual=null;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeModal();
+    if(document.getElementById('carrito-overlay').classList.contains('open'))toggleCarrito();
+  }
+});
+function compartirJuego(){
+  if(!S.modalActual)return;
+  const url=`${location.href.split('?')[0]}?q=${encodeURIComponent(S.modalActual.nombre)}`;
+  if(navigator.share){navigator.share({title:'ZentelStore — '+S.modalActual.nombre,url}).catch(()=>{});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>showToast('🔗 Link copiado'));}
+  else showToast('🔗 '+url);
+}
+function avisameDisponible(){
+  if(!S.modalActual)return;
+  window.open(waLink(`Hola! Quiero que me avisen cuando *${S.modalActual.nombre}* esté disponible 🔔`),'_blank');
+}
+
+// ═══════════════════════════════════════════
+//  RENDER JUEGOS
+// ═══════════════════════════════════════════
+function renderJuegos(tipo,datos,esSteam){
+  const cont=document.getElementById('grid-'+tipo),pagCont=document.getElementById('pag-'+tipo);
+  cont.innerHTML='';pagCont.innerHTML='';
+  cont.classList.toggle('view-lista',S.vista==='lista');
+  const texto=document.getElementById('buscador').value.toLowerCase().trim();
+  let lista=datos.filter(j=>{
+    const mT=j.nombre.toLowerCase().includes(texto);
+    const mF=S.filtro==='todos'||(S.filtro==='disponible'&&j.disponible)||(S.filtro==='no-disponible'&&!j.disponible);
+    return mT&&mF;
+  });
+  if(S.orden==='precio-asc')lista=[...lista].sort((a,b)=>(esSteam?(a.precio||0):(a.primario||0))-(esSteam?(b.precio||0):(b.primario||0)));
+  else if(S.orden==='precio-desc')lista=[...lista].sort((a,b)=>(esSteam?(b.precio||0):(b.primario||0))-(esSteam?(a.precio||0):(a.primario||0)));
+  if(!lista.length){cont.innerHTML='<div class="empty"><p>Sin resultados</p></div>';actualizarStats();return;}
+  const pag=S.paginas[tipo]||1,total=lista.length,totalPags=Math.ceil(total/POR_PAGINA)||1;
+  const inicio=(pag-1)*POR_PAGINA,fin=Math.min(inicio+POR_PAGINA,total);
+  lista.slice(inicio,fin).forEach((j,i)=>{
+    const card=document.createElement('div');card.className='card';card.style.animationDelay=`${Math.min(i*12,280)}ms`;
+    const isFav=S.favoritos.some(f=>f.nombre===j.nombre);
+    const tag=esSteam?'Steam':tipo.toUpperCase();
+    const objConTag={...j,_tag:tag,_icono:esSteam?'🖥️':'🎮'};
+    if(esSteam){
+      card.innerHTML=`<img class="card-img" src="${j.imagen||''}" alt="${j.nombre}" loading="lazy" onerror="this.src='https://placehold.co/460x215/1a1a26/64748b?text=+'"/>
+        <div class="card-actions">
+          <button class="btn-fav ${isFav?'active':''}" onclick="event.stopPropagation();toggleFavorito(this.closest('.card').__obj,this)">${isFav?'❤️':'🤍'}</button>
+          <button class="btn-cart-card" onclick="event.stopPropagation();agregarAlCarrito(''+j.nombre.replace(/'/g,''),${j.precio||0},'Steam','🖥️')">🛒</button>
+        </div>
+        <div class="card-body"><div class="card-nombre" title="${j.nombre}">${j.nombre}</div>
+        <div class="card-footer">${j.precio?`<span class="precio-steam">${fmt(j.precio)}</span>`:`<span class="precio-consultar">Consultar</span>`}
+        <span class="badge ${j.disponible?'badge-ok':'badge-no'}">${j.disponible?'✓':'DRM'}</span></div></div>`;
+    } else {
+      const p1=fmt(j.primario),p2=fmt(j.secundario),plat=tipo.toUpperCase();
+      card.innerHTML=`<div class="card-actions">
+          <button class="btn-fav ${isFav?'active':''}" onclick="event.stopPropagation();toggleFavorito(this.closest('.card').__obj,this)">${isFav?'❤️':'🤍'}</button>
+          <button class="btn-cart-card" onclick="event.stopPropagation();agregarAlCarrito(''+j.nombre.replace(/'/g,''),${j.primario||0},'${plat} Primaria','🎮')">🛒</button>
+        </div>
+        <div class="card-body"><div class="card-nombre" title="${j.nombre}">${j.nombre}</div>
+        <div class="precios-row">
+          <div class="precio-bloque"><span class="precio-label">Primaria</span>${p1?`<span class="precio-valor">${p1}</span>`:`<span class="precio-consultar">Sin stock</span>`}</div>
+          <div class="precio-bloque" style="text-align:right"><span class="precio-label">Secundaria</span>${p2?`<span class="precio-valor sec">${p2}</span>`:`<span class="precio-consultar">—</span>`}</div>
+          <span class="badge ${j.disponible?'badge-ok':'badge-no'}" style="align-self:flex-end">${j.disponible?'✓':'Agot.'}</span>
+        </div></div>`;
+    }
+    card.__obj=objConTag;
+    card.addEventListener('click',()=>{
+      const precios=esSteam
+        ?(j.precio?[{label:'Precio',valor:fmt(j.precio),_val:j.precio}]:[{label:'Precio',valor:'Consultar',clase:'consultar',_val:0}])
+        :(()=>{const pr=[];if(j.primario)pr.push({label:'👑 Primaria — tu cuenta',valor:fmt(j.primario),_val:j.primario});if(j.secundario)pr.push({label:'🎮 Secundaria — cuenta nuestra',valor:fmt(j.secundario),clase:'sec',_val:j.secundario});return pr.length?pr:[{label:'Precio',valor:'Sin stock',clase:'consultar',_val:0}];})();
+      const plat=tipo.toUpperCase();
+      openModal({nombre:j.nombre,imagen:j.imagen||null,
+        desc:esSteam?(j.disponible?'✅ Disponible en Steam. Se activa directo en tu biblioteca.':'⚠️ Requiere DRM.'):`🎮 ${plat}. ${j.disponible?'Disponible.':'Sin stock.'}`,
+        precios,waMsg:esSteam?`Hola! Quiero consultar por *${j.nombre}* (Steam) 🖥️`:`Hola! Quiero consultar por *${j.nombre}* para ${plat} 🎮`,
+        disponible:j.disponible,obj:objConTag});
+    });
+    cont.appendChild(card);
+  });
+  // Paginación
+  if(totalPags>1){
+    const mk=(txt,dis,fn)=>{const b=document.createElement('button');b.className='btn-pag';b.textContent=txt;b.disabled=dis;if(!dis)b.onclick=fn;return b;};
+    pagCont.appendChild(mk('←',pag===1,()=>{S.paginas[tipo]=pag-1;renderJuegos(tipo,datos,esSteam);window.scrollTo({top:0,behavior:'smooth'});}));
+    const ds=Math.max(1,pag-2),ht=Math.min(totalPags,ds+4);
+    for(let p=ds;p<=ht;p++){const pp=p;const b=mk(p,false,()=>{S.paginas[tipo]=pp;renderJuegos(tipo,datos,esSteam);window.scrollTo({top:0,behavior:'smooth'});});if(p===pag)b.classList.add('active');pagCont.appendChild(b);}
+    const info=document.createElement('span');info.className='pag-info';info.textContent=`${inicio+1}–${fin} de ${total}`;pagCont.appendChild(info);
+    pagCont.appendChild(mk('→',pag===totalPags,()=>{S.paginas[tipo]=pag+1;renderJuegos(tipo,datos,esSteam);window.scrollTo({top:0,behavior:'smooth'});}));
+  }
+  actualizarStats();
+}
+function actualizarStats(){
+  const key=S.tab==='steam'?'steam_'+S.subSteam:S.tab;const d=S.datos[key];if(!d)return;
+  document.getElementById('stat-pill').style.display='flex';
+  document.getElementById('stat-total').textContent=d.length.toLocaleString('es-AR');
+  document.getElementById('stat-disp').textContent=d.filter(j=>j.disponible).length.toLocaleString('es-AR');
+}
+
+// ═══════════════════════════════════════════
+//  PROMOS
+// ═══════════════════════════════════════════
+function renderPromos(){
+  const cont=document.getElementById('grid-promos');cont.innerHTML='';
+  S.datos.promos.forEach((promo,i)=>{
+    const div=document.createElement('div');div.className='promo-card';div.style.animationDelay=`${i*100}ms`;
+    div.innerHTML=`<div class="promo-header"><div class="promo-titulo ${promo.color}">${promo.titulo}</div>${promo.subtitulo?`<div class="promo-subtitulo">${promo.subtitulo}</div>`:''}<div class="promo-vigencia">⏰ ${promo.vigencia}</div></div>
+      <div class="promo-lista">${promo.juegos.map(j=>`<div class="promo-item" data-j="${j}" data-p="${promo.titulo}">${j}</div>`).join('')}</div>`;
+    cont.appendChild(div);
+  });
+  cont.querySelectorAll('.promo-item').forEach(el=>el.addEventListener('click',()=>openModal({nombre:el.dataset.j,imagen:null,desc:`🔥 En promoción: ${el.dataset.p}`,precios:[{label:'Promo',valor:el.dataset.p.split('POR')[1]?.trim()||'Ver promo',_val:0}],waMsg:`Hola! Vi la promo *${el.dataset.p}* y quiero *${el.dataset.j}* 🔥`,disponible:true,obj:{nombre:el.dataset.j,_tag:'Promo',_icono:'🔥'}})));
+}
+
+// ═══════════════════════════════════════════
+//  PS PLUS
+// ═══════════════════════════════════════════
+function renderPsplus(){
+  const d=S.datos.psplus,cont=document.getElementById('contenido-psplus');
+  const colores=['#3b82f6','#8b5cf6','#06b6d4'];
+  const emojis={'Free Fire':'🔥','Clash Royale':'⚔️','Fortnite (Pavos)':'🪂','Robux':'🟥'};
+  let h=`<div class="section-label">PlayStation Plus</div><div class="psplus-grid">`;
+  d.psplus.forEach((plan,i)=>{h+=`<div class="service-card" style="animation-delay:${i*80}ms"><div class="service-header"><span class="service-emoji">🏆</span><span class="service-nombre" style="color:${colores[i]}">${plan.plan}</span></div><div class="service-items">${plan.opciones.map(o=>`<div class="service-item" data-n="${plan.plan} - ${o.duracion}" data-p="${o.precio}"><span class="service-item-nombre">${o.duracion}</span><span class="service-item-precio">${fmt(o.precio)}</span></div>`).join('')}</div></div>`;});
+  h+=`</div><div class="section-label" style="margin-top:1.3rem">Tarjetas PSN</div><div class="psplus-grid">`;
+  d.tarjetas_psn.forEach((t,i)=>{h+=`<div class="service-card" style="animation-delay:${i*80}ms"><div class="service-header"><span class="service-emoji">💳</span><span class="service-nombre">${t.tipo}</span></div><div class="service-items">${t.items.map(it=>`<div class="service-item" data-n="Tarjeta PSN ${t.tipo} ${it.valor}" data-p="0"><span class="service-item-nombre">${it.valor}</span><span class="service-item-precio prox">${it.precio}</span></div>`).join('')}</div></div>`;});
+  h+=`</div><div class="section-label" style="margin-top:1.3rem">Monedas de Juegos</div><div class="psplus-grid">`;
+  d.monedas.forEach((m,i)=>{h+=`<div class="service-card" style="animation-delay:${i*80}ms"><div class="service-header"><span class="service-emoji">${emojis[m.juego]||'💰'}</span><span class="service-nombre">${m.juego}</span></div><div class="service-items">${m.items.map(it=>`<div class="service-item" data-n="${m.juego} - ${it.cantidad}" data-p="${it.precio||0}"><span class="service-item-nombre">${it.cantidad}</span><span class="service-item-precio ${it.precio==null?'consultar':''}">${it.precio!=null?fmt(it.precio):'Consultar'}</span></div>`).join('')}</div></div>`;});
+  h+=`</div><div class="section-label" style="margin-top:1.3rem">Xbox Game Pass</div><div class="psplus-grid"><div class="service-card"><div class="service-header"><span class="service-emoji">🎮</span><span class="service-nombre" style="color:#22c55e">Game Pass</span></div><div class="service-items">${d.gamepass.map(g=>`<div class="service-item" data-n="Game Pass - ${g.nombre}" data-p="${g.precio}"><span class="service-item-nombre">${g.nombre}</span><span class="service-item-precio">${fmt(g.precio)}</span></div>`).join('')}</div></div></div>`;
+  cont.innerHTML=h;
+  cont.querySelectorAll('.service-item[data-n]').forEach(el=>el.addEventListener('click',()=>{
+    const nombre=el.dataset.n,precio=parseInt(el.dataset.p)||0;
+    const txt=el.querySelector('.service-item-precio')?.textContent.trim()||'Consultar';
+    if(txt==='Próximamente')return;
+    openModal({nombre,imagen:null,desc:'✅ Activación inmediata.',precios:[{label:'Precio',valor:precio?fmt(precio):txt,clase:precio?'':'consultar',_val:precio}],waMsg:`Hola! Quiero consultar por *${nombre}* 🏆`,disponible:true,obj:{nombre,_tag:'PS Plus',_icono:'🏆'}});
+  }));
+}
+
+// ═══════════════════════════════════════════
+//  STREAMING
+// ═══════════════════════════════════════════
+function renderStreaming(){
+  const cont=document.getElementById('grid-streaming');cont.innerHTML='';
+  // Mostrar notas al final
+  setTimeout(()=>{const notas=document.getElementById('notas-streaming');if(notas)notas.style.display='block';},100);
+  const av=document.createElement('div');av.style.cssText='grid-column:1/-1;background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);border-radius:10px;padding:.65rem 1rem;font-size:.8rem;color:var(--accent);margin-bottom:.1rem;display:flex;align-items:center;gap:.45rem';
+  av.innerHTML='🍿 <strong>Todos incluyen:</strong>&nbsp;1 Perfil · 30 días de garantía';cont.appendChild(av);
+  let idx=0;
+  S.datos.streaming.forEach(cat=>{
+    const lbl=document.createElement('div');lbl.style.cssText='grid-column:1/-1;font-family:"Rajdhani",sans-serif;font-size:.88rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;padding-bottom:.32rem;border-bottom:1px solid var(--border);margin-top:.35rem';lbl.textContent=cat.categoria;cont.appendChild(lbl);
+    cat.servicios.forEach(s=>{
+      const div=document.createElement('div');div.className='stream-card';div.style.animationDelay=`${idx*52}ms`;
+      div.innerHTML=`<div class="stream-header"><span class="stream-emoji">${s.emoji}</span><span class="stream-nombre">${s.servicio}</span></div>
+        <div class="stream-items">${s.items.map(it=>`<div class="stream-item"><span class="stream-tipo">${it.tipo}</span><span class="stream-precio">${fmt(it.precio)}</span></div>`).join('')}</div>`;
+      div.addEventListener('click',()=>{const it=s.items[0];openModal({nombre:s.servicio,imagen:null,desc:`${s.emoji} ${cat.categoria} · ${it.tipo}`,precios:[{label:'Precio',valor:fmt(it.precio),_val:it.precio}],waMsg:`Hola! Quiero consultar por *${s.servicio}* (Streaming) 📺`,disponible:true,obj:{nombre:s.servicio,_tag:'Streaming',_icono:s.emoji}});});
+      cont.appendChild(div);idx++;
+    });
+  });
+}
+
+// ═══════════════════════════════════════════
+//  FAQ
+// ═══════════════════════════════════════════
+const FAQS=[
+  {q:'¿Los juegos son originales?',a:'Sí, todos los juegos son licencias originales que activás en tu cuenta de Steam o PlayStation. No son cracks ni copias.'},
+  {q:'¿Cuánto tarda la activación?',a:'La activación es inmediata una vez confirmado el pago. En horario de atención (9 a 22 hs) te respondemos en minutos.'},
+  {q:'¿Qué pasa si el juego no activa?',a:'Garantizamos la activación. Si hay algún problema, lo solucionamos sin costo adicional o te devolvemos el dinero.'},
+  {q:'¿Qué métodos de pago aceptan?',a:'Aceptamos transferencia bancaria, Mercado Pago y efectivo. Consultanos por WhatsApp para más detalles.'},
+  {q:'¿Puedo pedir un juego que no está en el catálogo?',a:'¡Sí! Escribinos por WhatsApp con el nombre del juego y lo conseguimos. El catálogo se actualiza constantemente.'},
+  {q:'¿Funciona en cualquier región?',a:'Los juegos de Steam y PlayStation pueden tener restricciones regionales. Consultanos antes de comprar si tenés dudas.'},
+  {q:'¿Qué es cuenta primaria y secundaria en PS?',a:'La cuenta primaria te da acceso al juego en tu propia cuenta de PlayStation, sin restricciones. La cuenta secundaria solo te permite jugar usando la cuenta que nosotros te proporcionamos. La primaria es más cara por ser completamente tuya.'},
+];
+function renderFAQ(){
+  const list=document.getElementById('faq-list');if(!list||list.children.length)return;
+  FAQS.forEach((f,i)=>{
+    const item=document.createElement('div');item.className='faq-item';
+    item.innerHTML=`<div class="faq-q" onclick="toggleFaq(this)"><span>${f.q}</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div><div class="faq-a">${f.a}</div>`;
+    list.appendChild(item);
+  });
+}
+function toggleFaq(btn){
+  btn.classList.toggle('open');
+  const a=btn.nextElementSibling;a.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════
+//  CONTACTO
+// ═══════════════════════════════════════════
+function enviarContacto(){
+  const nombre=document.getElementById('c-nombre').value.trim();
+  const cat=document.getElementById('c-categoria').value;
+  const juego=document.getElementById('c-juego').value.trim();
+  const msg=document.getElementById('c-mensaje').value.trim();
+  if(!nombre||!cat||!msg){showToast('⚠️ Completá los campos obligatorios');return;}
+  let texto=`Hola! Soy *${nombre}*.\n\nEstoy interesado en: *${cat}*`;
+  if(juego) texto+=`\nJuego/Servicio: *${juego}*`;
+  texto+=`\n\nMensaje: ${msg}\n\n¡Gracias! 🎮`;
+  window.open(waLink(texto),'_blank');
+  document.getElementById('c-nombre').value='';document.getElementById('c-categoria').value='';document.getElementById('c-juego').value='';document.getElementById('c-mensaje').value='';
+  showToast('✅ Abriendo WhatsApp...');
+}
+
+
+
+// ═══════════════════════════════════════════
+//  PRODUCTIVIDAD
+// ═══════════════════════════════════════════
+const prodSelects = {}; // guardamos el precio seleccionado por botón
+
+function seleccionarPlan(sel, nombre){
+  const btnId = sel.closest('.prod-plan').querySelector('.btn-add-cart').id;
+  const val = parseInt(sel.value)||0;
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  prodSelects[btnId] = {precio: val, nombre};
+  if(val){
+    btn.classList.add('activo');
+    btn.textContent = `Añadir al Carrito 🛒`;
+  } else {
+    btn.classList.remove('activo');
+    btn.textContent = 'Añadir al Carrito 🛒';
+  }
+}
+
+function addProd(btnId, nombre, emoji){
+  const data = prodSelects[btnId];
+  if(!data || !data.precio){
+    showToast('⚠️ Seleccioná un plan primero');
+    return;
+  }
+  // Get the selected option text for tipo
+  const btn = document.getElementById(btnId);
+  const sel = btn?.closest('.prod-plan')?.querySelector('.prod-select');
+  const tipo = sel?.options[sel.selectedIndex]?.text || '';
+  agregarAlCarrito(nombre, data.precio, tipo, emoji);
+}
+
+// Mostrar notas streaming cuando carga
+// notas streaming se muestran dentro de renderStreaming directamente
+
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
+function addToCartSafe(card){
+  const nombre = card.dataset.nombre||'Producto';
+  const precio = parseInt(card.dataset.precio)||0;
+  const tipo   = card.dataset.tipo||'';
+  const emoji  = card.dataset.emoji||'🎮';
+  agregarAlCarrito(nombre, precio, tipo, emoji);
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+actualizarCarritoUI();
+renderHome();
+// Pre-carga background
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    fetchConCache('steam_disponibles').then(d=>{S.datos.steam_disponibles=d;mostrarNovedades(d);}).catch(()=>{});
+    setTimeout(()=>fetchConCache('streaming').then(d=>S.datos.streaming=d).catch(()=>{}),2000);
+    setTimeout(()=>fetchConCache('ps4').then(d=>S.datos.ps4=d).catch(()=>{}),3500);
+    setTimeout(()=>fetchConCache('ps5').then(d=>S.datos.ps5=d).catch(()=>{}),5000);
+  },1500);
+});
+</script>
+</body>
+</html>
